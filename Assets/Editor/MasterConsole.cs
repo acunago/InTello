@@ -20,8 +20,10 @@ public class MasterConsole : EditorWindow
 
     void OnGUI()
     {
+
         if (mDisplay == 0) DrawConsole();
         else DrawDynamics(mDisplay);
+
     }
 
     /// <summary>
@@ -40,10 +42,15 @@ public class MasterConsole : EditorWindow
     {
         if (GUILayout.Button(new GUIContent("WPS", "WayPoints Systems.")))
             mDisplay = 1;
+        Repaint();
     }
 
     void DrawDynamics(int i)
     {
-        if (mDisplay == 1) WayPointSystem.OpenWindow();
+        if (mDisplay == 1)
+        {
+            WayPointSystem.OpenWindow();
+            mDisplay = 0;
+        }
     }
 }
