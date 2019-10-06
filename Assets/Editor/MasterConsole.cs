@@ -49,7 +49,7 @@ public class MasterConsole : EditorWindow
     {
         if (mDisplay == 1)
         {
-            WayPointSystem.OpenWindow();
+            WayPointSystemEW.OpenWindow();
             mDisplay = 0;
         }
     }
