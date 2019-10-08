@@ -52,7 +52,7 @@ public class NodeEditor : EditorWindow
     public string data;
     public string path;
 
-    [MenuItem("CustomTools/MyNodeEditor")]
+    [MenuItem("InTello/IaNoder")]
     //[CustomEditor(typeof(LevelManager)), CanEditMultipleObjects]
     public static void OpenWindow()
     {
@@ -106,7 +106,7 @@ public class NodeEditor : EditorWindow
     {
         CheckMouseInput(Event.current);
         EditorGUILayout.BeginVertical(GUILayout.Height(100));
-        EditorGUILayout.LabelField("Random Levels Editor", myStyle, GUILayout.Height(50));
+        EditorGUILayout.LabelField("Ia Editor", myStyle, GUILayout.Height(50));
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
 
