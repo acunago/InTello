@@ -60,6 +60,11 @@ public class NodeEditor : EditorWindow
         DrawToolbar();
         DrawWorkSpace();
 
+        if (GUI.changed)
+        {
+            SceneView.RepaintAll();
+            Repaint();
+        }
     }
 
     // REVISAR PARA EL PANEO
@@ -142,7 +147,6 @@ public class NodeEditor : EditorWindow
 
         }
         EditorGUILayout.EndVertical();
-
     }
 
     /// <summary>
@@ -180,13 +184,13 @@ public class NodeEditor : EditorWindow
 
                 for (int i = 0; i < _mNodes.Count; i++)
                 {
+                    _mNodes[i].myRect = GUI.Window(i, _mNodes[i].myRect, DrawNode, _mNodes[i].name);
+                    if (_mNodes[i] == _selectedNode)
+                        GUI.backgroundColor = Color.grey;
+                    GUI.backgroundColor = defaultColor;
+
                     foreach (var n in _mNodes[i].connected)
                     {
-                        _mNodes[i].myRect = GUI.Window(i, _mNodes[i].myRect, DrawNode, _mNodes[i].name);
-                        if (_mNodes[i] == _selectedNode)
-                            GUI.backgroundColor = Color.grey;
-                        GUI.backgroundColor = defaultColor;
-
                         // REVISAR DIBUJO DE LINEAS CONECTORAS
                         Handles.DrawLine(new Vector2(_mNodes[i].myRect.position.x + _mNodes[i].myRect.width / 2f,
                             _mNodes[i].myRect.position.y + _mNodes[i].myRect.height / 2f),
@@ -206,18 +210,18 @@ public class NodeEditor : EditorWindow
     /// <param name="id">ID del nodo a dibujar</param>
     private void DrawNode(int id)
     {
-        toLink = EditorGUILayout.TextField("Link", toLink);
         if (_mNodes[id].type != 0)
         {
+            toLink = EditorGUILayout.TextField("Link", toLink);
             if ((_mNodes[id].type == 1 && _mNodes[id].connected.Count <= 2))
             {
-                if (GUILayout.Button("Connect", GUILayout.Width(50), GUILayout.Height(25)))
+                if (GUILayout.Button("Connect"))
                 {
                     ConnectNode(id);
                 }
             }
         }
-        if (GUILayout.Button("Delete", GUILayout.Width(50), GUILayout.Height(25)))
+        if (GUILayout.Button("Delete"))
         {
             RemoveNode(id);
         }
