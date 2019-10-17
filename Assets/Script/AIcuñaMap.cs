@@ -10,9 +10,7 @@ using UnityEditor.SceneManagement;
 [CreateAssetMenu(fileName = "New AIcuñaMap", menuName = "AIcuña Map", order = 51)]
 public class AIcuñaMap : ScriptableObject
 {
-    [SerializeField]
-    string name;
-    //[SerializeField]
-    //List<BaseNode> nodes;
+    public string name;
+    public List<BaseNode> nodes;
 
 }

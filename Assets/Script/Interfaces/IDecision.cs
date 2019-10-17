@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-public interface INode
+public interface IDecision
 {
     void Execute();
 }

@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-public class OptionsNode : INode
+public class OptionsDT : IDecision
 {
     public delegate int Option();
     Option _option;
-    List<INode> _optionsNodes;
+    List<IDecision> _optionsNodes;
 
-    public OptionsNode(Option myOption, List<INode> myOptionsNodes)
+    public OptionsDT(Option myOption, List<IDecision> myOptionsNodes)
     {
         _option = myOption;
         _optionsNodes = myOptionsNodes;

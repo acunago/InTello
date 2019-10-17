@@ -1,25 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class QuestionNode : INode
+public class QuestionNode : BaseNode
 {
-    public delegate bool Question();
-    Question _question;
-    INode _trueNode;
-    INode _falseNode;
+    // ACA VA LO DEL EVENT
+    public BaseNode trueNode;
+    public BaseNode falseNode;
 
-    public QuestionNode(Question myQuestion,INode trueNode,INode falseNode)
+    /// <summary>
+    /// Constructor de nodo question.
+    /// </summary>
+    /// <param name="x">Rect X</param>
+    /// <param name="y">Rect Y</param>
+    /// <param name="w">Rect Width</param>
+    /// <param name="h">Rect Height</param>
+    /// <param name="n">Node Name</param>
+    public QuestionNode(float x, float y, float w, float h, string n) : base(x, y, w, h, n)
     {
-        _question = myQuestion;
-        _trueNode = trueNode;
-        _falseNode = falseNode;
+        inputs = 1;
+        outputs = 2;
     }
 
-    public void Execute()
-    {
-        if (_question())
-            _trueNode.Execute();
-        else
-            _falseNode.Execute();
-    }
+
 }

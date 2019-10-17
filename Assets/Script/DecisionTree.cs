@@ -5,36 +5,36 @@ using UnityEngine;
 public class DecisionTree : MonoBehaviour
 {
     #region AI DECLARATIONS
-    INode _rootAI;
+    IDecision _rootAI;
 
-    ActionNode _buildAction;
-    ActionNode _cutAction;
-    ActionNode _dieAction;
-    ActionNode _eatAction;
-    ActionNode _findPartnerAction;
-    ActionNode _harvestAction;
-    ActionNode _lookForFamilyAction;
-    ActionNode _playAction;
-    ActionNode _restAction;
+    ActionDT _buildAction;
+    ActionDT _cutAction;
+    ActionDT _dieAction;
+    ActionDT _eatAction;
+    ActionDT _findPartnerAction;
+    ActionDT _harvestAction;
+    ActionDT _lookForFamilyAction;
+    ActionDT _playAction;
+    ActionDT _restAction;
 
-    QuestionNode _hasStaminaQuestion;
-    QuestionNode _theresBuildingQuestion;
-    QuestionNode _theresFoodQuestion;
-    QuestionNode _theresFoodStockQuestion;
-    QuestionNode _theresWoodQuestion;
-    QuestionNode _whatGenderQuestion;
-    QuestionNode _whatStatusQuestion;
-    QuestionNode _whatTimeAdultsQuestion;
-    QuestionNode _whatTimeKidsQuestion;
-    QuestionNode _whatTimeOldsQuestion;
-    QuestionNode _whatWeatherAdultsQuestion;
-    QuestionNode _whatWeatherKidsQuestion;
-    QuestionNode _whatWeatherOldsQuestion;
+    QuestionDT _hasStaminaQuestion;
+    QuestionDT _theresBuildingQuestion;
+    QuestionDT _theresFoodQuestion;
+    QuestionDT _theresFoodStockQuestion;
+    QuestionDT _theresWoodQuestion;
+    QuestionDT _whatGenderQuestion;
+    QuestionDT _whatStatusQuestion;
+    QuestionDT _whatTimeAdultsQuestion;
+    QuestionDT _whatTimeKidsQuestion;
+    QuestionDT _whatTimeOldsQuestion;
+    QuestionDT _whatWeatherAdultsQuestion;
+    QuestionDT _whatWeatherKidsQuestion;
+    QuestionDT _whatWeatherOldsQuestion;
 
-    OptionsNode _hasLifeOptions;
-    List<INode> _hasLifeList;
-    OptionsNode _howOldOptions;
-    List<INode> _howOldList;
+    OptionsDT _hasLifeOptions;
+    List<IDecision> _hasLifeList;
+    OptionsDT _howOldOptions;
+    List<IDecision> _howOldList;
     #endregion
 
     void Start()
@@ -53,110 +53,110 @@ public class DecisionTree : MonoBehaviour
     void GenerateMyAI()
     {
         #region ACTIONS
-        _buildAction = new ActionNode(() =>
+        _buildAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _cutAction = new ActionNode(() =>
+        _cutAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _dieAction = new ActionNode(() =>
+        _dieAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _eatAction = new ActionNode(() =>
+        _eatAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _findPartnerAction = new ActionNode(() =>
+        _findPartnerAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _harvestAction = new ActionNode(() =>
+        _harvestAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _lookForFamilyAction = new ActionNode(() =>
+        _lookForFamilyAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _playAction = new ActionNode(() =>
+        _playAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
-        _restAction = new ActionNode(() =>
+        _restAction = new ActionDT(() =>
         {
             //DO SOMETHING
         });
         #endregion
 
         #region QUESTIONS
-        _theresWoodQuestion = new QuestionNode(() =>
+        _theresWoodQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _buildAction, _cutAction);
-        _whatStatusQuestion = new QuestionNode(() =>
+        _whatStatusQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _lookForFamilyAction, _findPartnerAction);
-        _theresFoodStockQuestion = new QuestionNode(() =>
+        _theresFoodStockQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _whatStatusQuestion, _harvestAction);
-        _whatGenderQuestion = new QuestionNode(() =>
+        _whatGenderQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _theresWoodQuestion, _theresFoodStockQuestion);
-        _whatWeatherAdultsQuestion = new QuestionNode(() =>
+        _whatWeatherAdultsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _whatGenderQuestion, _whatStatusQuestion);
-        _whatTimeAdultsQuestion = new QuestionNode(() =>
+        _whatTimeAdultsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _whatWeatherAdultsQuestion, _restAction);
-        _whatWeatherKidsQuestion = new QuestionNode(() =>
+        _whatWeatherKidsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _playAction, _restAction);
-        _whatTimeKidsQuestion = new QuestionNode(() =>
+        _whatTimeKidsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _whatWeatherKidsQuestion, _restAction);
-        _theresBuildingQuestion = new QuestionNode(() =>
+        _theresBuildingQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _buildAction, _restAction);
-        _whatWeatherOldsQuestion = new QuestionNode(() =>
+        _whatWeatherOldsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _theresBuildingQuestion, _restAction);
-        _whatTimeOldsQuestion = new QuestionNode(() =>
+        _whatTimeOldsQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _whatWeatherOldsQuestion, _restAction);
-        _howOldList = new List<INode>();
+        _howOldList = new List<IDecision>();
         _howOldList.Add(_whatTimeKidsQuestion);
         _howOldList.Add(_whatTimeAdultsQuestion);
         _howOldList.Add(_whatTimeOldsQuestion);
-        _howOldOptions = new OptionsNode(() =>
+        _howOldOptions = new OptionsDT(() =>
         {
             return 0; //COMPARE SOMETHING
         }, _howOldList);
-        _hasStaminaQuestion = new QuestionNode(() =>
+        _hasStaminaQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _howOldOptions, _restAction);
-        _theresFoodQuestion = new QuestionNode(() =>
+        _theresFoodQuestion = new QuestionDT(() =>
         {
             return true; //COMPARE SOMETHING
         }, _eatAction, _harvestAction);
-        _hasLifeList = new List<INode>();
+        _hasLifeList = new List<IDecision>();
         _hasLifeList.Add(_dieAction);
         _hasLifeList.Add(_theresFoodQuestion);
         _hasLifeList.Add(_hasStaminaQuestion);
-        _hasLifeOptions = new OptionsNode(() =>
+        _hasLifeOptions = new OptionsDT(() =>
         {
             return 0; //COMPARE SOMETHING
         }, _hasLifeList);
