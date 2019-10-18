@@ -52,11 +52,9 @@ public class AIcuña : EditorWindow
         DrawToolbar();
         DrawWorkSpace();
 
-        if (GUI.changed)
-        {
-            SceneView.RepaintAll();
-            Repaint();
-        }
+        ProcessEvents(Event.current);
+
+        if (GUI.changed) Repaint();
     }
 
     /// <summary>
@@ -349,6 +347,11 @@ public class AIcuña : EditorWindow
         }
 
         Repaint();
+    }
+
+    void ProcessEvents(Event e)
+    {
+
     }
 }
 
