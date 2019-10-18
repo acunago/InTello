@@ -5,6 +5,13 @@ using UnityEditor;
 
 public class NodeEditor : EditorWindow
 {
+    private Rect toolbarPanel;
+    private Rect editorPanel;
+
+    private float toolbarHeight = 20f;
+
+    private string mapName = "Create a new map"; // REVISAR
+
     private List<Node> nodes;
     private List<Connection> connections;
 
@@ -49,18 +56,68 @@ public class NodeEditor : EditorWindow
 
     private void OnGUI()
     {
-        DrawGrid(20, 0.2f, Color.gray);
-        DrawGrid(100, 0.4f, Color.gray);
-
-        DrawNodes();
-        DrawConnections();
-
-        DrawConnectionLine(Event.current);
-
-        ProcessNodeEvents(Event.current);
-        ProcessEvents(Event.current);
+        DrawToolbarPanel();
+        DrawEditorPanel();
 
         if (GUI.changed) Repaint();
+    }
+
+    private void DrawToolbarPanel()
+    {
+        toolbarPanel = new Rect(0, 0, position.width, toolbarHeight);
+
+        GUILayout.BeginArea(toolbarPanel, EditorStyles.toolbar);
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button(new GUIContent("N", "New Map."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+                if (GUILayout.Button(new GUIContent("O", "Open Map."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+                mapName = EditorGUILayout.TextField(mapName, EditorStyles.toolbarTextField);
+                if (GUILayout.Button(new GUIContent("S", "Save Map."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+
+                GUILayout.FlexibleSpace();
+
+                if (GUILayout.Button(new GUIContent("Q", "New Question Node."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+                if (GUILayout.Button(new GUIContent("A", "New Action Node."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+                if (GUILayout.Button(new GUIContent("X", "Delete Selected Node."),
+                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    ; // COMPLETAR FUNCIONALIDAD
+
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        GUILayout.EndArea();
+    }
+
+    private void DrawEditorPanel()
+    {
+        editorPanel = new Rect(0, toolbarHeight, position.width, position.height - toolbarHeight);
+
+        GUILayout.BeginArea(editorPanel);
+        {
+            GUILayout.Label("Lower Panel");
+
+            DrawGrid(20, 0.2f, Color.gray);
+            DrawGrid(100, 0.4f, Color.gray);
+
+            DrawNodes();
+            DrawConnections();
+            DrawConnectionLine(Event.current);
+
+            ProcessNodeEvents(Event.current);
+            ProcessEvents(Event.current);
+        }
+        GUILayout.EndArea();
     }
 
     private void DrawGrid(float gridSpacing, float gridOpacity, Color gridColor)
@@ -159,7 +216,7 @@ public class NodeEditor : EditorWindow
                 break;
 
             case EventType.MouseDrag:
-                if (e.button == 0)
+                if (e.button == 2)
                 {
                     OnDrag(e.delta);
                 }
@@ -212,7 +269,9 @@ public class NodeEditor : EditorWindow
             nodes = new List<Node>();
         }
 
-        nodes.Add(new Node(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
+        nodes.Add(new Node(mousePosition, 200, 50,
+            nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle,
+            OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
     }
 
     private void OnClickInPoint(ConnectionPoint inPoint)
