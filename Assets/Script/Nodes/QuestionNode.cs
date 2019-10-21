@@ -1,26 +1,32 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
-public class QuestionNode : BaseNode
+public class QuestionNode : Node
 {
-    // ACA VA LO DEL EVENT
-    public BaseNode trueNode;
-    public BaseNode falseNode;
 
-    /// <summary>
-    /// Constructor de nodo question.
-    /// </summary>
-    /// <param name="x">Rect X</param>
-    /// <param name="y">Rect Y</param>
-    /// <param name="w">Rect Width</param>
-    /// <param name="h">Rect Height</param>
-    /// <param name="n">Node Name</param>
-    public QuestionNode(float x, float y, float w, float h, string n) : base(x, y, w, h, n)
+    public ConnectionPoint inPoint;
+    public ConnectionPoint truePoint;
+    public ConnectionPoint falsePoint;
+
+    public QuestionNode(Vector2 position, float width, float height,
+        GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
+        Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode)
     {
-        inputs = 1;
-        outputs = 2;
+        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
+        truePoint = new ConnectionPoint(this, ConnectionPointType.True, truePointStyle, OnClickOutPoint);
+        falsePoint = new ConnectionPoint(this, ConnectionPointType.False, falsePointStyle, OnClickOutPoint);
     }
 
+    public override void Draw()
+    {
+        inPoint.Draw();
+        truePoint.Draw();
+        falsePoint.Draw();
 
+        base.Draw();
+    }
 }

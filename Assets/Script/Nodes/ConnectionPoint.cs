@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ConnectionPointType { In, Out }
+public enum ConnectionPointType { In, True, False }
 
 public class ConnectionPoint
 {
-    public Rect rect;
-
     public ConnectionPointType type;
+
+    public Rect rect;
 
     public Node node;
 
@@ -36,7 +36,12 @@ public class ConnectionPoint
                 rect.x = node.rect.x - rect.width + 8f;
                 break;
 
-            case ConnectionPointType.Out:
+            case ConnectionPointType.True:
+                rect.y -= rect.height / 2;
+                rect.x = node.rect.x + node.rect.width - 8f;
+                break;
+            case ConnectionPointType.False:
+                rect.y += rect.height / 2;
                 rect.x = node.rect.x + node.rect.width - 8f;
                 break;
         }

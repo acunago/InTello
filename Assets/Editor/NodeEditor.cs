@@ -18,7 +18,8 @@ public class NodeEditor : EditorWindow
     private GUIStyle nodeStyle;
     private GUIStyle selectedNodeStyle;
     private GUIStyle inPointStyle;
-    private GUIStyle outPointStyle;
+    private GUIStyle truePointStyle;
+    private GUIStyle falsePointStyle;
 
     private ConnectionPoint selectedInPoint;
     private ConnectionPoint selectedOutPoint;
@@ -48,10 +49,15 @@ public class NodeEditor : EditorWindow
         inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
         inPointStyle.border = new RectOffset(4, 4, 12, 12);
 
-        outPointStyle = new GUIStyle();
-        outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-        outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-        outPointStyle.border = new RectOffset(4, 4, 12, 12);
+        truePointStyle = new GUIStyle();
+        truePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+        truePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
+        truePointStyle.border = new RectOffset(4, 4, 12, 12);
+
+        falsePointStyle = new GUIStyle();
+        falsePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+        falsePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
+        falsePointStyle.border = new RectOffset(4, 4, 12, 12);
     }
 
     private void OnGUI()
@@ -243,7 +249,8 @@ public class NodeEditor : EditorWindow
     private void ProcessContextMenu(Vector2 mousePosition)
     {
         GenericMenu genericMenu = new GenericMenu();
-        genericMenu.AddItem(new GUIContent("Add node"), false, () => OnClickAddNode(mousePosition));
+        genericMenu.AddItem(new GUIContent("Add Question Node"), false, () => OnClickAddQuestionNode(mousePosition));
+        genericMenu.AddItem(new GUIContent("Add Action Node"), false, () => OnClickAddActionNode(mousePosition));
         genericMenu.ShowAsContext();
     }
 
@@ -262,16 +269,28 @@ public class NodeEditor : EditorWindow
         GUI.changed = true;
     }
 
-    private void OnClickAddNode(Vector2 mousePosition)
+    private void OnClickAddQuestionNode(Vector2 mousePosition)
     {
         if (nodes == null)
         {
             nodes = new List<Node>();
         }
 
-        nodes.Add(new Node(mousePosition, 200, 50,
-            nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle,
+        nodes.Add(new QuestionNode(mousePosition, 200, 60,
+            nodeStyle, selectedNodeStyle, inPointStyle, truePointStyle, falsePointStyle,
             OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
+    }
+
+    private void OnClickAddActionNode(Vector2 mousePosition)
+    {
+        if (nodes == null)
+        {
+            nodes = new List<Node>();
+        }
+
+        nodes.Add(new ActionNode(mousePosition, 200, 50,
+            nodeStyle, selectedNodeStyle, inPointStyle,
+            OnClickInPoint, OnClickRemoveNode));
     }
 
     private void OnClickInPoint(ConnectionPoint inPoint)
@@ -323,7 +342,7 @@ public class NodeEditor : EditorWindow
 
             for (int i = 0; i < connections.Count; i++)
             {
-                if (connections[i].inPoint == node.inPoint || connections[i].outPoint == node.outPoint)
+                if (connections[i].inPoint.node == node || connections[i].outPoint.node == node)
                 {
                     connectionsToRemove.Add(connections[i]);
                 }

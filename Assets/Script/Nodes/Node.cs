@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+public enum NodeType { Action, Question }
+
 public class Node
 {
+    public NodeType type;
+
     public Rect rect;
     public string title;
     public bool isDragged;
     public bool isSelected;
 
-    public ConnectionPoint inPoint;
-    public ConnectionPoint outPoint;
 
     public GUIStyle style;
     public GUIStyle defaultNodeStyle;
@@ -20,12 +22,11 @@ public class Node
 
     public Action<Node> OnRemoveNode;
 
-    public Node(Vector2 position, float width, float height, GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode)
+    public Node(Vector2 position, float width, float height, 
+        GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode)
     {
         rect = new Rect(position.x, position.y, width, height);
         style = nodeStyle;
-        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
-        outPoint = new ConnectionPoint(this, ConnectionPointType.Out, outPointStyle, OnClickOutPoint);
         defaultNodeStyle = nodeStyle;
         selectedNodeStyle = selectedStyle;
         OnRemoveNode = OnClickRemoveNode;
@@ -36,10 +37,8 @@ public class Node
         rect.position += delta;
     }
 
-    public void Draw()
+    public virtual void Draw()
     {
-        inPoint.Draw();
-        outPoint.Draw();
         GUI.Box(rect, title, style);
     }
 

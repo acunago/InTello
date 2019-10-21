@@ -1,24 +1,26 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
-public class ActionNode : BaseNode
+public class ActionNode : Node
 {
-    // ACA VA LO DEL EVENT
 
-    /// <summary>
-    /// Constructor de nodo action.
-    /// </summary>
-    /// <param name="x">Rect X</param>
-    /// <param name="y">Rect Y</param>
-    /// <param name="w">Rect Width</param>
-    /// <param name="h">Rect Height</param>
-    /// <param name="n">Node Name</param>
-    public ActionNode(float x, float y, float w, float h, string n) : base(x, y, w, h, n)
+    public ConnectionPoint inPoint;
+
+    public ActionNode(Vector2 position, float width, float height,
+        GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle,
+        Action<ConnectionPoint> OnClickInPoint, Action<Node> OnClickRemoveNode)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode)
     {
-        inputs = 1;
-        outputs = 0;
+        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
     }
 
+    public override void Draw()
+    {
+        inPoint.Draw();
 
+        base.Draw();
+    }
 }
