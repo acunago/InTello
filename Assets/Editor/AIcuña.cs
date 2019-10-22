@@ -28,6 +28,18 @@ public class AIcuña : EditorWindow
     private float _tbHeight = 30;
     public GUIStyle wrapTextFieldStyle;
 
+    IDecision nodeDes;
+    IQuestion nodeQues;
+
+    private GameObject _gameObj;
+
+    public delegate void DesMethod();
+    public delegate void QuestMethod(IDecision trueNode, IDecision falseNode);
+
+
+    DesMethod desDelegate;
+    QuestMethod quesDelegate;
+
     [MenuItem("InTello/AIcuña")]
     public static void OpenWindow()
     {
@@ -310,6 +322,24 @@ public class AIcuña : EditorWindow
             EditorGUILayout.EndHorizontal();
 
             // ACA VA LO DEL UNITYEVENT
+
+            // reviso que el gameObject tenga un script del tipo Iquestion y lo guardo en un delegate
+            _gameObj = (GameObject)EditorGUILayout.ObjectField(_gameObj, typeof(GameObject), true);
+            if (_gameObj != null)
+            {
+                //este va en el nodo de pregunta
+                if (_gameObj.GetComponent<IQuestion>() != null)
+                {
+
+                    quesDelegate = new QuestMethod(_gameObj.GetComponent<IQuestion>().Execute);
+                }
+
+                //este va en el nodo de decision
+                if (_gameObj.GetComponent<IDecision>() != null)
+                {
+                    desDelegate = new DesMethod(_gameObj.GetComponent<IDecision>().Execute);
+                }
+            }
 
             if (_mNodes[id].outputs > 0)
                 Connectors(100, 143, _mNodes[id].outputs); // ARREGLAR CON DIMENSIONES DE VENTANA DINAMICA

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-public interface IDecision
+﻿public interface IDecision
 {
     void Execute();
 }

@@ -10,6 +10,9 @@ public class Node
 {
     public NodeType type;
 
+    public DesMethod desDelegate;
+    public QuestMethod quesDelegate;
+
     public Rect rect;
     public string title;
     public bool isDragged;
@@ -21,6 +24,11 @@ public class Node
     public GUIStyle selectedNodeStyle;
 
     public Action<Node> OnRemoveNode;
+
+    public delegate void DesMethod();
+    public delegate void QuestMethod(IDecision trueNode, IDecision falseNode);
+
+
 
     public Node(Vector2 position, float width, float height, 
         GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode)
