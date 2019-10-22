@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -10,8 +11,8 @@ public class NodeEditor : EditorWindow
 
     private float toolbarHeight = 20f;
 
-    private string mapName = "Create a new map"; // REVISAR
-
+    private string mapName = "Create/Open an AIcuña Map";
+    private AIcuñaMap currentMap;
     private List<Node> nodes;
     private List<Connection> connections;
 
@@ -39,10 +40,18 @@ public class NodeEditor : EditorWindow
         nodeStyle = new GUIStyle();
         nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
         nodeStyle.border = new RectOffset(12, 12, 12, 12);
+        nodeStyle.alignment = TextAnchor.MiddleCenter;
+        nodeStyle.fontStyle = FontStyle.Bold;
+        nodeStyle.normal.textColor = Color.black;
+        nodeStyle.wordWrap = true;
 
         selectedNodeStyle = new GUIStyle();
         selectedNodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
         selectedNodeStyle.border = new RectOffset(12, 12, 12, 12);
+        selectedNodeStyle.alignment = TextAnchor.MiddleCenter;
+        selectedNodeStyle.fontStyle = FontStyle.Bold;
+        selectedNodeStyle.normal.textColor = Color.white;
+        selectedNodeStyle.wordWrap = true;
 
         inPointStyle = new GUIStyle();
         inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
@@ -68,6 +77,8 @@ public class NodeEditor : EditorWindow
         if (GUI.changed) Repaint();
     }
 
+    #region DRAWs
+
     private void DrawToolbarPanel()
     {
         toolbarPanel = new Rect(0, 0, position.width, toolbarHeight);
@@ -78,27 +89,35 @@ public class NodeEditor : EditorWindow
             {
                 if (GUILayout.Button(new GUIContent("N", "New Map."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
+                    OnClickNewMap();
                 if (GUILayout.Button(new GUIContent("O", "Open Map."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
+                    OnClickOpenMap(Selection.activeObject);
                 mapName = EditorGUILayout.TextField(mapName, EditorStyles.toolbarTextField);
                 if (GUILayout.Button(new GUIContent("S", "Save Map."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
+                    OnClickSaveMap(currentMap);
 
                 GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button(new GUIContent("Q", "New Question Node."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
+                    OnClickAddQuestionNode(editorPanel.position);
                 if (GUILayout.Button(new GUIContent("A", "New Action Node."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
+                    OnClickAddActionNode(editorPanel.position);
                 if (GUILayout.Button(new GUIContent("X", "Delete Selected Node."),
                     EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    ; // COMPLETAR FUNCIONALIDAD
-
+                {
+                    if (nodes != null)
+                    {
+                        for (int i = 0; i < nodes.Count; i++)
+                        {
+                            if(nodes[i].isSelected)
+                                nodes[i].OnRemoveNode(nodes[i]);
+                        }
+                    }
+                }
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -111,7 +130,7 @@ public class NodeEditor : EditorWindow
 
         GUILayout.BeginArea(editorPanel);
         {
-            GUILayout.Label("Lower Panel");
+            GUILayout.Label(" - Workspace - ");
 
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
@@ -208,6 +227,10 @@ public class NodeEditor : EditorWindow
         }
     }
 
+    #endregion
+
+    #region PROCESS
+
     private void ProcessEvents(Event e)
     {
         drag = Vector2.zero;
@@ -254,6 +277,93 @@ public class NodeEditor : EditorWindow
         genericMenu.ShowAsContext();
     }
 
+    #endregion
+
+    #region METHODs
+
+    private void OnClickNewMap()
+    {
+        AIcuñaMap asset = ScriptableObject.CreateInstance<AIcuñaMap>();
+
+        string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+        if (path == "")
+        {
+            path = "Assets";
+        }
+        else if (Path.GetExtension(path) != "")
+        {
+            path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
+        }
+
+        string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + typeof(AIcuñaMap).ToString() + ".asset");
+
+        AssetDatabase.CreateAsset(asset, assetPathAndName);
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.FocusProjectWindow();
+        Selection.activeObject = asset;
+
+        OnClickSaveMap(asset);
+
+        OnClickOpenMap(asset);
+    }
+
+    private void OnClickOpenMap(object asset)
+    {
+        if (asset.GetType() != typeof(AIcuñaMap))
+        {
+            EditorUtility.DisplayDialog("Error", "You must select an AIcuña Map.", "Ok. I'm Sorry.");
+            return;
+        }
+
+        currentMap = (AIcuñaMap)asset;
+
+        if (currentMap.nodes == null)
+        {
+            currentMap.nodes = new List<Node>();
+        }
+        if (currentMap.connections == null)
+        {
+            currentMap.connections = new List<Connection>();
+        }
+
+        mapName = currentMap.name;
+
+        nodes = new List<Node>(currentMap.nodes);
+        connections = new List<Connection>(currentMap.connections);
+
+        EditorUtility.DisplayDialog("Success Open", "AIcuña map has been opened correctly.", "Ok. Let me work.");
+    }
+
+    private void OnClickSaveMap(AIcuñaMap map)
+    {
+        if (map == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Something go wrong.", "Ok. This is a stupid msg.");
+            return;
+        }
+
+        if (nodes == null)
+        {
+            nodes = new List<Node>();
+        }
+        if (connections == null)
+        {
+            connections = new List<Connection>();
+        }
+
+        map.name = mapName;
+        map.nodes = new List<Node>(nodes);
+        map.connections = new List<Connection>(connections);
+
+        EditorUtility.DisplayDialog("Success Save", "AIcuña map has been saved correctly.", "Ok. You're awesome.");
+    }
+
+    /// <summary>
+    /// Drag del mapa.
+    /// </summary>
+    /// <param name="delta"></param>
     private void OnDrag(Vector2 delta)
     {
         drag = delta;
@@ -269,30 +379,42 @@ public class NodeEditor : EditorWindow
         GUI.changed = true;
     }
 
-    private void OnClickAddQuestionNode(Vector2 mousePosition)
+    /// <summary>
+    /// Crea un nodo de pregunta.
+    /// </summary>
+    /// <param name="position">Posicion del nodo.</param>
+    private void OnClickAddQuestionNode(Vector2 position)
     {
         if (nodes == null)
         {
             nodes = new List<Node>();
         }
 
-        nodes.Add(new QuestionNode(mousePosition, 200, 60,
+        nodes.Add(new QuestionNode(position, 200, 60,
             nodeStyle, selectedNodeStyle, inPointStyle, truePointStyle, falsePointStyle,
             OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
     }
 
-    private void OnClickAddActionNode(Vector2 mousePosition)
+    /// <summary>
+    /// Crea un nodo de accion.
+    /// </summary>
+    /// <param name="position">Posicion del nodo.</param>
+    private void OnClickAddActionNode(Vector2 position)
     {
         if (nodes == null)
         {
             nodes = new List<Node>();
         }
 
-        nodes.Add(new ActionNode(mousePosition, 200, 50,
+        nodes.Add(new ActionNode(position, 200, 50,
             nodeStyle, selectedNodeStyle, inPointStyle,
             OnClickInPoint, OnClickRemoveNode));
     }
 
+    /// <summary>
+    /// Conecta un punto de entrada.
+    /// </summary>
+    /// <param name="inPoint">Punto de entrada a conectar.</param>
     private void OnClickInPoint(ConnectionPoint inPoint)
     {
         selectedInPoint = inPoint;
@@ -311,6 +433,10 @@ public class NodeEditor : EditorWindow
         }
     }
 
+    /// <summary>
+    /// Conecta un punto de salida.
+    /// </summary>
+    /// <param name="outPoint">Punto de salida a conectar.</param>
     private void OnClickOutPoint(ConnectionPoint outPoint)
     {
         selectedOutPoint = outPoint;
@@ -329,11 +455,19 @@ public class NodeEditor : EditorWindow
         }
     }
 
+    /// <summary>
+    /// Elimina la conexion indicada.
+    /// </summary>
+    /// <param name="connection">Conexion a eliminar.</param>
     private void OnClickRemoveConnection(Connection connection)
     {
         connections.Remove(connection);
     }
 
+    /// <summary>
+    /// Elimina el nodo indicado.
+    /// </summary>
+    /// <param name="node">Nodo a eliminar.</param>
     private void OnClickRemoveNode(Node node)
     {
         if (connections != null)
@@ -359,6 +493,9 @@ public class NodeEditor : EditorWindow
         nodes.Remove(node);
     }
 
+    /// <summary>
+    /// Crea una conexion entre nodos.
+    /// </summary>
     private void CreateConnection()
     {
         if (connections == null)
@@ -369,9 +506,14 @@ public class NodeEditor : EditorWindow
         connections.Add(new Connection(selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
     }
 
+    /// <summary>
+    /// Reinicia la conexion en curso.
+    /// </summary>
     private void ClearConnectionSelection()
     {
         selectedInPoint = null;
         selectedOutPoint = null;
     }
+
+    #endregion
 }

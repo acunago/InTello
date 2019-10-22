@@ -11,6 +11,6 @@ using UnityEditor.SceneManagement;
 public class AIcuñaMap : ScriptableObject
 {
     public string name;
-    public List<BaseNode> nodes;
-
+    public List<Node> nodes;
+    public List<Connection> connections;
 }

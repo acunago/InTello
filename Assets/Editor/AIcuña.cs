@@ -237,7 +237,7 @@ public class AIcuña : EditorWindow
     /// </summary>
     private void NewQuestion()
     {
-        //_mNodes.Add(new QuestionNode(0, 0, 200, 150, "New Question"));
+        _mNodes.Add(new BaseNode(0, 0, 200, 150, "New Question"));
         Repaint();
     }
 
@@ -246,7 +246,7 @@ public class AIcuña : EditorWindow
     /// </summary>
     private void NewAction()
     {
-        //_mNodes.Add(new ActionNode(0, 0, 200, 150, "New Action"));
+        _mNodes.Add(new BaseNode(0, 0, 200, 150, "New Action"));
         Repaint();
     }
 
