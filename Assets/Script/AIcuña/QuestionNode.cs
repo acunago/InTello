@@ -6,10 +6,11 @@ using UnityEditor;
 
 public class QuestionNode : Node
 {
+    // REVISAR EL USO DEL DELEGATE
     public delegate void QuestMethod(IDecision trueNode, IDecision falseNode);
     private QuestMethod quesDelegate;
     private GameObject goSource;
-    private IQuestion nodeQues;
+    private IDecision nodeQues;
 
     public ConnectionPoint inPoint;
     public ConnectionPoint truePoint;
@@ -50,9 +51,10 @@ public class QuestionNode : Node
                 goSource = (GameObject)EditorGUILayout.ObjectField(goSource, typeof(GameObject), true);
                 if (goSource != null)
                 {
-                    if (goSource.GetComponent<IQuestion>() != null)
+                    if (goSource.GetComponent<IDecision>() != null)
                     {
-                        quesDelegate = new QuestMethod(goSource.GetComponent<IQuestion>().Execute);
+                        // MEJORAR Y CORREGIR
+                        //quesDelegate = new QuestMethod(goSource.GetComponent<IDecision>().Execute);
                     }
                 }
             }

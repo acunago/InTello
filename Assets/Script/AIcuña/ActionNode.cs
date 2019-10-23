@@ -6,6 +6,7 @@ using UnityEditor;
 
 public class ActionNode : Node
 {
+    // REVISAR EL USO DEL DELEGATE
     public delegate void DesMethod();
     private DesMethod desDelegate;
     private GameObject goSource;
@@ -46,6 +47,7 @@ public class ActionNode : Node
                 {
                     if (goSource.GetComponent<IDecision>() != null)
                     {
+                        // MEJORAR Y CORREGIR
                         desDelegate = new DesMethod(goSource.GetComponent<IDecision>().Execute);
                     }
                 }
