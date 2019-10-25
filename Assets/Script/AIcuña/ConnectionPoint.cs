@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum ConnectionPointType { In, True, False }
@@ -48,10 +46,7 @@ public class ConnectionPoint
 
         if (GUI.Button(rect, "", style))
         {
-            if (OnClickConnectionPoint != null)
-            {
-                OnClickConnectionPoint(this);
-            }
+            OnClickConnectionPoint?.Invoke(this);
         }
     }
 }

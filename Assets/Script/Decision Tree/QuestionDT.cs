@@ -1,14 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public class QuestionDT : IDecision
 {
-    public delegate bool Question();
-    Question _question;
-    IDecision _trueNode;
-    IDecision _falseNode;
+    private Func<bool> _question;
+    private IDecision _trueNode;
+    private IDecision _falseNode;
 
-    public QuestionDT(Question myQuestion, IDecision trueNode, IDecision falseNode)
+    public QuestionDT(Func<bool> myQuestion, IDecision trueNode, IDecision falseNode)
     {
         _question = myQuestion;
         _trueNode = trueNode;

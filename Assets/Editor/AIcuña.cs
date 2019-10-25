@@ -6,28 +6,27 @@ using UnityEditor;
 
 public class AIcuña : EditorWindow
 {
+    private Rect _toolbarPanel;
+    private Rect _editorPanel;
 
-    private Rect toolbarPanel;
-    private Rect editorPanel;
+    private float _toolbarHeight = 20f;
 
-    private float toolbarHeight = 20f;
+    private string _mapName = "Create/Open an AIcuña Map";
+    private AIcuñaMap _currentMap;
+    private List<Node> _nodes;
+    private List<Connection> _connections;
 
-    private string mapName = "Create/Open an AIcuña Map";
-    private AIcuñaMap currentMap;
-    private List<Node> nodes;
-    private List<Connection> connections;
+    private GUIStyle _nodeStyle;
+    private GUIStyle _selectedNodeStyle;
+    private GUIStyle _inPointStyle;
+    private GUIStyle _truePointStyle;
+    private GUIStyle _falsePointStyle;
 
-    private GUIStyle nodeStyle;
-    private GUIStyle selectedNodeStyle;
-    private GUIStyle inPointStyle;
-    private GUIStyle truePointStyle;
-    private GUIStyle falsePointStyle;
+    private ConnectionPoint _selectedInPoint;
+    private ConnectionPoint _selectedOutPoint;
 
-    private ConnectionPoint selectedInPoint;
-    private ConnectionPoint selectedOutPoint;
-
-    private Vector2 offset;
-    private Vector2 drag;
+    private Vector2 _offset;
+    private Vector2 _drag;
 
     [MenuItem("InTello/AIcuña")]
     private static void OpenWindow()
@@ -38,36 +37,36 @@ public class AIcuña : EditorWindow
 
     private void OnEnable()
     {
-        nodeStyle = new GUIStyle();
-        nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
-        nodeStyle.border = new RectOffset(12, 12, 12, 12);
-        nodeStyle.alignment = TextAnchor.MiddleCenter;
-        nodeStyle.fontStyle = FontStyle.Bold;
-        nodeStyle.normal.textColor = Color.black;
-        nodeStyle.wordWrap = true;
+        _nodeStyle = new GUIStyle();
+        _nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
+        _nodeStyle.border = new RectOffset(12, 12, 12, 12);
+        _nodeStyle.alignment = TextAnchor.MiddleCenter;
+        _nodeStyle.fontStyle = FontStyle.Bold;
+        _nodeStyle.normal.textColor = Color.black;
+        _nodeStyle.wordWrap = true;
 
-        selectedNodeStyle = new GUIStyle();
-        selectedNodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
-        selectedNodeStyle.border = new RectOffset(12, 12, 12, 12);
-        selectedNodeStyle.alignment = TextAnchor.MiddleCenter;
-        selectedNodeStyle.fontStyle = FontStyle.Bold;
-        selectedNodeStyle.normal.textColor = Color.white;
-        selectedNodeStyle.wordWrap = true;
+        _selectedNodeStyle = new GUIStyle();
+        _selectedNodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
+        _selectedNodeStyle.border = new RectOffset(12, 12, 12, 12);
+        _selectedNodeStyle.alignment = TextAnchor.MiddleCenter;
+        _selectedNodeStyle.fontStyle = FontStyle.Bold;
+        _selectedNodeStyle.normal.textColor = Color.white;
+        _selectedNodeStyle.wordWrap = true;
 
-        inPointStyle = new GUIStyle();
-        inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
-        inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
-        inPointStyle.border = new RectOffset(4, 4, 12, 12);
+        _inPointStyle = new GUIStyle();
+        _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
+        _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
+        _inPointStyle.border = new RectOffset(4, 4, 12, 12);
 
-        truePointStyle = new GUIStyle();
-        truePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-        truePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-        truePointStyle.border = new RectOffset(4, 4, 12, 12);
+        _truePointStyle = new GUIStyle();
+        _truePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+        _truePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
+        _truePointStyle.border = new RectOffset(4, 4, 12, 12);
 
-        falsePointStyle = new GUIStyle();
-        falsePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-        falsePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-        falsePointStyle.border = new RectOffset(4, 4, 12, 12);
+        _falsePointStyle = new GUIStyle();
+        _falsePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+        _falsePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
+        _falsePointStyle.border = new RectOffset(4, 4, 12, 12);
     }
 
     private void OnGUI()
@@ -78,37 +77,37 @@ public class AIcuña : EditorWindow
         if (GUI.changed) Repaint();
     }
 
-    #region DRAWs
+    #region ---------- DRAW SECTION ----------
 
     private void DrawToolbarPanel()
     {
-        toolbarPanel = new Rect(0, 0, position.width, toolbarHeight);
+        _toolbarPanel = new Rect(0, 0, position.width, _toolbarHeight);
 
-        GUILayout.BeginArea(toolbarPanel, EditorStyles.toolbar);
+        GUILayout.BeginArea(_toolbarPanel, EditorStyles.toolbar);
         {
             EditorGUILayout.BeginHorizontal();
             {
                 if (GUILayout.Button(new GUIContent("N", "New Map."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
                     OnClickNewMap();
                 if (GUILayout.Button(new GUIContent("O", "Open Map."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
                     OnClickOpenMap(Selection.activeObject);
-                mapName = EditorGUILayout.TextField(mapName, EditorStyles.toolbarTextField);
+                _mapName = EditorGUILayout.TextField(_mapName, EditorStyles.toolbarTextField);
                 if (GUILayout.Button(new GUIContent("S", "Save Map."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    OnClickSaveMap(currentMap);
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
+                    OnClickSaveMap(_currentMap);
 
                 GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button(new GUIContent("Q", "New Question Node."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    OnClickAddQuestionNode(editorPanel.position);
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
+                    OnClickAddQuestionNode(_editorPanel.position);
                 if (GUILayout.Button(new GUIContent("A", "New Action Node."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
-                    OnClickAddActionNode(editorPanel.position);
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
+                    OnClickAddActionNode(_editorPanel.position);
                 if (GUILayout.Button(new GUIContent("X", "Delete Selected Node."),
-                    EditorStyles.toolbarButton, GUILayout.Width(toolbarHeight)))
+                    EditorStyles.toolbarButton, GUILayout.Width(_toolbarHeight)))
                     OnClickRemoveSelectedNode();
             }
             EditorGUILayout.EndHorizontal();
@@ -118,9 +117,9 @@ public class AIcuña : EditorWindow
 
     private void DrawEditorPanel()
     {
-        editorPanel = new Rect(0, toolbarHeight, position.width, position.height - toolbarHeight);
+        _editorPanel = new Rect(0, _toolbarHeight, position.width, position.height - _toolbarHeight);
 
-        GUILayout.BeginArea(editorPanel);
+        GUILayout.BeginArea(_editorPanel);
         {
             GUILayout.Label(" - Workspace - ");
 
@@ -146,8 +145,8 @@ public class AIcuña : EditorWindow
         {
             Handles.color = new Color(gridColor.r, gridColor.g, gridColor.b, gridOpacity);
 
-            offset += drag * 0.5f;
-            Vector3 newOffset = new Vector3(offset.x % gridSpacing, offset.y % gridSpacing, 0);
+            _offset += _drag * 0.5f;
+            Vector3 newOffset = new Vector3(_offset.x % gridSpacing, _offset.y % gridSpacing, 0);
 
             for (int i = 0; i < widthDivs; i++)
             {
@@ -166,34 +165,34 @@ public class AIcuña : EditorWindow
 
     private void DrawNodes()
     {
-        if (nodes != null)
+        if (_nodes != null)
         {
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < _nodes.Count; i++)
             {
-                nodes[i].Draw();
+                _nodes[i].Draw();
             }
         }
     }
 
     private void DrawConnections()
     {
-        if (connections != null)
+        if (_connections != null)
         {
-            for (int i = 0; i < connections.Count; i++)
+            for (int i = 0; i < _connections.Count; i++)
             {
-                connections[i].Draw();
+                _connections[i].Draw();
             }
         }
     }
 
     private void DrawConnectionLine(Event e)
     {
-        if (selectedInPoint != null && selectedOutPoint == null)
+        if (_selectedInPoint != null && _selectedOutPoint == null)
         {
             Handles.DrawBezier(
-                selectedInPoint.rect.center,
+                _selectedInPoint.rect.center,
                 e.mousePosition,
-                selectedInPoint.rect.center + Vector2.left * 50f,
+                _selectedInPoint.rect.center + Vector2.left * 50f,
                 e.mousePosition - Vector2.left * 50f,
                 Color.white,
                 null,
@@ -203,12 +202,12 @@ public class AIcuña : EditorWindow
             GUI.changed = true;
         }
 
-        if (selectedOutPoint != null && selectedInPoint == null)
+        if (_selectedOutPoint != null && _selectedInPoint == null)
         {
             Handles.DrawBezier(
-                selectedOutPoint.rect.center,
+                _selectedOutPoint.rect.center,
                 e.mousePosition,
-                selectedOutPoint.rect.center - Vector2.left * 50f,
+                _selectedOutPoint.rect.center - Vector2.left * 50f,
                 e.mousePosition + Vector2.left * 50f,
                 Color.white,
                 null,
@@ -221,11 +220,11 @@ public class AIcuña : EditorWindow
 
     #endregion
 
-    #region PROCESS
+    #region ---------- PROCESS SECTION ----------
 
     private void ProcessEvents(Event e)
     {
-        drag = Vector2.zero;
+        _drag = Vector2.zero;
 
         switch (e.type)
         {
@@ -258,11 +257,11 @@ public class AIcuña : EditorWindow
 
     private void ProcessNodeEvents(Event e)
     {
-        if (nodes != null)
+        if (_nodes != null)
         {
-            for (int i = nodes.Count - 1; i >= 0; i--)
+            for (int i = _nodes.Count - 1; i >= 0; i--)
             {
-                bool guiChanged = nodes[i].ProcessEvents(e);
+                bool guiChanged = _nodes[i].ProcessEvents(e);
 
                 if (guiChanged)
                 {
@@ -282,7 +281,22 @@ public class AIcuña : EditorWindow
 
     #endregion
 
-    #region METHODs
+    #region ---------- METHOD SECTION ----------
+
+    private void OnDrag(Vector2 delta)
+    {
+        _drag = delta;
+
+        if (_nodes != null)
+        {
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                _nodes[i].Drag(delta);
+            }
+        }
+
+        GUI.changed = true;
+    }
 
     private void OnClickNewMap()
     {
@@ -320,21 +334,21 @@ public class AIcuña : EditorWindow
             return;
         }
 
-        currentMap = (AIcuñaMap)asset;
+        _currentMap = (AIcuñaMap)asset;
 
-        if (currentMap.nodes == null)
+        if (_currentMap.nodes == null)
         {
-            currentMap.nodes = new List<Node>();
+            _currentMap.nodes = new List<Node>();
         }
-        if (currentMap.connections == null)
+        if (_currentMap.connections == null)
         {
-            currentMap.connections = new List<Connection>();
+            _currentMap.connections = new List<Connection>();
         }
 
-        mapName = currentMap.name;
+        _mapName = _currentMap.name;
 
-        nodes = new List<Node>(currentMap.nodes);
-        connections = new List<Connection>(currentMap.connections);
+        _nodes = new List<Node>(_currentMap.nodes);
+        _connections = new List<Connection>(_currentMap.connections);
 
         EditorUtility.DisplayDialog("Success Open", "AIcuña map has been opened correctly.", "Ok. Let me work.");
     }
@@ -347,84 +361,53 @@ public class AIcuña : EditorWindow
             return;
         }
 
-        if (nodes == null)
+        if (_nodes == null)
         {
-            nodes = new List<Node>();
+            _nodes = new List<Node>();
         }
-        if (connections == null)
+        if (_connections == null)
         {
-            connections = new List<Connection>();
+            _connections = new List<Connection>();
         }
 
-        map.name = mapName;
-        map.nodes = new List<Node>(nodes);
-        map.connections = new List<Connection>(connections);
+        map.name = _mapName;
+        map.nodes = new List<Node>(_nodes);
+        map.connections = new List<Connection>(_connections);
 
         EditorUtility.DisplayDialog("Success Save", "AIcuña map has been saved correctly.", "Ok. You're awesome.");
     }
 
-    /// <summary>
-    /// Drag del mapa.
-    /// </summary>
-    /// <param name="delta"></param>
-    private void OnDrag(Vector2 delta)
-    {
-        drag = delta;
-
-        if (nodes != null)
-        {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].Drag(delta);
-            }
-        }
-
-        GUI.changed = true;
-    }
-
-    /// <summary>
-    /// Crea un nodo de pregunta.
-    /// </summary>
-    /// <param name="position">Posicion del nodo.</param>
     private void OnClickAddQuestionNode(Vector2 position)
     {
-        if (nodes == null)
+        if (_nodes == null)
         {
-            nodes = new List<Node>();
+            _nodes = new List<Node>();
         }
 
-        nodes.Add(new QuestionNode(position, 200, 60,
-            nodeStyle, selectedNodeStyle, inPointStyle, truePointStyle, falsePointStyle,
+        _nodes.Add(new QuestionNode(position, 200, 60,
+            _nodeStyle, _selectedNodeStyle, _inPointStyle, _truePointStyle, _falsePointStyle,
             OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
     }
 
-    /// <summary>
-    /// Crea un nodo de accion.
-    /// </summary>
-    /// <param name="position">Posicion del nodo.</param>
     private void OnClickAddActionNode(Vector2 position)
     {
-        if (nodes == null)
+        if (_nodes == null)
         {
-            nodes = new List<Node>();
+            _nodes = new List<Node>();
         }
 
-        nodes.Add(new ActionNode(position, 200, 50,
-            nodeStyle, selectedNodeStyle, inPointStyle,
+        _nodes.Add(new ActionNode(position, 200, 50,
+            _nodeStyle, _selectedNodeStyle, _inPointStyle,
             OnClickInPoint, OnClickRemoveNode));
     }
 
-    /// <summary>
-    /// Conecta un punto de entrada.
-    /// </summary>
-    /// <param name="inPoint">Punto de entrada a conectar.</param>
     private void OnClickInPoint(ConnectionPoint inPoint)
     {
-        selectedInPoint = inPoint;
+        _selectedInPoint = inPoint;
 
-        if (selectedOutPoint != null)
+        if (_selectedOutPoint != null)
         {
-            if (selectedOutPoint.node != selectedInPoint.node)
+            if (_selectedOutPoint.node != _selectedInPoint.node)
             {
                 CreateConnection();
                 ClearConnectionSelection();
@@ -436,17 +419,13 @@ public class AIcuña : EditorWindow
         }
     }
 
-    /// <summary>
-    /// Conecta un punto de salida.
-    /// </summary>
-    /// <param name="outPoint">Punto de salida a conectar.</param>
     private void OnClickOutPoint(ConnectionPoint outPoint)
     {
-        selectedOutPoint = outPoint;
+        _selectedOutPoint = outPoint;
 
-        if (selectedInPoint != null)
+        if (_selectedInPoint != null)
         {
-            if (selectedOutPoint.node != selectedInPoint.node)
+            if (_selectedOutPoint.node != _selectedInPoint.node)
             {
                 CreateConnection();
                 ClearConnectionSelection();
@@ -458,56 +437,45 @@ public class AIcuña : EditorWindow
         }
     }
 
-    /// <summary>
-    /// Elimina la conexion indicada.
-    /// </summary>
-    /// <param name="connection">Conexion a eliminar.</param>
     private void OnClickRemoveConnection(Connection connection)
     {
-        connections.Remove(connection);
+        _connections.Remove(connection);
     }
 
-    /// <summary>
-    /// Elimina el nodo indicado.
-    /// </summary>
-    /// <param name="node">Nodo a eliminar.</param>
     private void OnClickRemoveNode(Node node)
     {
-        if (connections != null)
+        if (_connections != null)
         {
             List<Connection> connectionsToRemove = new List<Connection>();
 
-            for (int i = 0; i < connections.Count; i++)
+            for (int i = 0; i < _connections.Count; i++)
             {
-                if (connections[i].inPoint.node == node || connections[i].outPoint.node == node)
+                if (_connections[i].inPoint.node == node || _connections[i].outPoint.node == node)
                 {
-                    connectionsToRemove.Add(connections[i]);
+                    connectionsToRemove.Add(_connections[i]);
                 }
             }
 
             for (int i = 0; i < connectionsToRemove.Count; i++)
             {
-                connections.Remove(connectionsToRemove[i]);
+                _connections.Remove(connectionsToRemove[i]);
             }
 
             connectionsToRemove = null;
         }
 
-        nodes.Remove(node);
+        _nodes.Remove(node);
     }
 
-    /// <summary>
-    /// Elimina el nodo seleccionado.
-    /// </summary>
     private void OnClickRemoveSelectedNode()
     {
-        if (nodes != null)
+        if (_nodes != null)
         {
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < _nodes.Count; i++)
             {
-                if (nodes[i].isSelected)
+                if (_nodes[i].isSelected)
                 {
-                    nodes[i].OnRemoveNode(nodes[i]);
+                    _nodes[i].OnRemoveNode(_nodes[i]);
                 }
             }
         }
@@ -515,34 +483,28 @@ public class AIcuña : EditorWindow
         GUI.changed = true;
     }
 
-    /// <summary>
-    /// Crea una conexion entre nodos.
-    /// </summary>
     private void CreateConnection()
     {
-        if (connections == null)
+        if (_connections == null)
         {
-            connections = new List<Connection>();
+            _connections = new List<Connection>();
         }
 
-        for (int i = 0; i < connections.Count; i++)
+        for (int i = 0; i < _connections.Count; i++)
         {
-            if (connections[i].outPoint == selectedOutPoint)
+            if (_connections[i].outPoint == _selectedOutPoint)
             {
-                connections.RemoveAt(i);
+                _connections.RemoveAt(i);
             }
         }
 
-        connections.Add(new Connection(selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
+        _connections.Add(new Connection(_selectedInPoint, _selectedOutPoint, OnClickRemoveConnection));
     }
 
-    /// <summary>
-    /// Reinicia la conexion en curso.
-    /// </summary>
     private void ClearConnectionSelection()
     {
-        selectedInPoint = null;
-        selectedOutPoint = null;
+        _selectedInPoint = null;
+        _selectedOutPoint = null;
     }
 
     #endregion

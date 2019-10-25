@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -31,10 +29,7 @@ public class Connection
 
         if (Handles.Button((inPoint.rect.center + outPoint.rect.center) * 0.5f, Quaternion.identity, 4, 8, Handles.RectangleHandleCap))
         {
-            if (OnClickRemoveConnection != null)
-            {
-                OnClickRemoveConnection(this);
-            }
+            OnClickRemoveConnection?.Invoke(this);
         }
     }
 }

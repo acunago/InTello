@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -92,9 +90,6 @@ public class Node
 
     private void OnClickRemoveNode()
     {
-        if (OnRemoveNode != null)
-        {
-            OnRemoveNode(this);
-        }
+        OnRemoveNode?.Invoke(this);
     }
 }

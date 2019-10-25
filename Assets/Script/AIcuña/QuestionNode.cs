@@ -6,17 +6,14 @@ using UnityEditor;
 
 public class QuestionNode : Node
 {
-    // REVISAR EL USO DEL DELEGATE
-    public delegate void QuestMethod(IDecision trueNode, IDecision falseNode);
-    private QuestMethod quesDelegate;
-    private GameObject goSource;
-    private IDecision nodeQues;
+    public Func<bool> question;
 
     public ConnectionPoint inPoint;
     public ConnectionPoint truePoint;
     public ConnectionPoint falsePoint;
 
-    private float offset = 10f;
+    private GameObject _goSource;
+    private float _offset = 10f;
 
     public QuestionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
@@ -38,9 +35,9 @@ public class QuestionNode : Node
         if (isSelected) // CAMBIAR POR TOGGLE EN EL BOX
         {
             Rect extra = new Rect(rect);
-            extra.x += offset;
-            extra.y += offset + rect.height / 2;
-            extra.width -= 2* offset;
+            extra.x += _offset;
+            extra.y += _offset + rect.height / 2;
+            extra.width -= 2 * _offset;
             extra.height = 60f;
             GUI.BeginGroup(extra);
             {
@@ -48,13 +45,13 @@ public class QuestionNode : Node
                 EditorGUIUtility.labelWidth = 40;
                 name = EditorGUILayout.TextField(new GUIContent("Name", "Node Name."), name);
 
-                goSource = (GameObject)EditorGUILayout.ObjectField(goSource, typeof(GameObject), true);
-                if (goSource != null)
+                _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
+                if (_goSource != null)
                 {
-                    if (goSource.GetComponent<IDecision>() != null)
+                    // MEJORAR Y CORREGIR
+                    if (_goSource.GetComponent<IDecision>() != null) // ACA DEBERIA DESPLEGAR LAS FUNCIONES QUE TIENE EL OBJETO
                     {
-                        // MEJORAR Y CORREGIR
-                        //quesDelegate = new QuestMethod(goSource.GetComponent<IDecision>().Execute);
+                        question = null; // PONER ACA LA FUNCION SELECCIONADA
                     }
                 }
             }
