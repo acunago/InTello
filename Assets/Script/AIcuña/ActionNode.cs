@@ -55,7 +55,7 @@ public class ActionNode : Node
                 _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
                 if (_goSource != null)
                 {
-                   List<object> targets = _goSource.GetComponents<Component>().ToList<System.Object>();
+                    List<object> targets = _goSource.GetComponents<Component>().ToList<System.Object>();
 
 
                     foreach (var components in (targets))
@@ -69,50 +69,51 @@ public class ActionNode : Node
                             }
                             lista.Add(components.GetType().Name);
                         }
-                    
-                    EditorGUILayout.BeginVertical();
-                    {
-                        string[] options = lista.ToArray();
-                        selectedScript = EditorGUILayout.Popup("Scripts", selectedScript, options, EditorStyles.popup, GUILayout.Width(115));
 
-                        if (selectedScript != 0)
+                        EditorGUILayout.BeginVertical();
                         {
-                            methodInfos = GetMethod(unityDictionary[lista[selectedScript]]);
-                            List<string> auxMethods = new List<string>();
+                            string[] options = lista.ToArray();
+                            selectedScript = EditorGUILayout.Popup("Scripts", selectedScript, options, EditorStyles.popup, GUILayout.Width(115));
 
-                            auxMethods.Add("");
-                            foreach (var methodsComp in GetMethod(unityDictionary[lista[selectedScript]]))
+                            if (selectedScript != 0)
                             {
-                                auxMethods.Add(methodsComp.Name);
-                            }
-                            string[] optionsMethod = auxMethods.ToArray();
-                            selectedMethod = EditorGUILayout.Popup("Methods", selectedMethod, optionsMethod, EditorStyles.popup, GUILayout.Width(115));
+                                methodInfos = GetMethod(unityDictionary[lista[selectedScript]]);
+                                List<string> auxMethods = new List<string>();
 
-                            if(selectedMethod!= 0)
-                            {
-                                
-                                action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[lista[selectedScript]], methodInfos[selectedMethod-1].Name);
-                                
+                                auxMethods.Add("");
+                                foreach (var methodsComp in GetMethod(unityDictionary[lista[selectedScript]]))
+                                {
+                                    auxMethods.Add(methodsComp.Name);
+                                }
+                                string[] optionsMethod = auxMethods.ToArray();
+                                selectedMethod = EditorGUILayout.Popup("Methods", selectedMethod, optionsMethod, EditorStyles.popup, GUILayout.Width(115));
+
+                                if (selectedMethod != 0)
+                                {
+
+                                    action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[lista[selectedScript]], methodInfos[selectedMethod - 1].Name);
+
+                                }
                             }
+
                         }
+                        EditorGUILayout.EndVertical();
 
+                        //esto es para test
+                        if (action != null)
+                        {
+                            action.Invoke();
+                        }
                     }
-                    EditorGUILayout.EndVertical();
 
-                    //esto es para test
-                    if (action != null)
-                    {
-                        action.Invoke();
-                    }
                 }
-
+                GUI.EndGroup();
             }
-            GUI.EndGroup();
+
+
+
+            base.Draw();
         }
-
-
-
-        base.Draw();
     }
 
     public List<MethodInfo> GetMethod(object target)
