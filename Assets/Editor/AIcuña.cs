@@ -56,19 +56,19 @@ public class AIcuña : EditorWindow
         _selectedNodeStyle.wordWrap = true;
 
         _inPointStyle = new GUIStyle();
-        _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
-        _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
-        _inPointStyle.border = new RectOffset(4, 4, 12, 12);
+        _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node4.png") as Texture2D;
+        _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node4 on.png") as Texture2D;
+        _inPointStyle.border = new RectOffset(2, -4, 2, 2);
 
         _truePointStyle = new GUIStyle();
-        _truePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-        _truePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-        _truePointStyle.border = new RectOffset(4, 4, 12, 12);
+        _truePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node3.png") as Texture2D;
+        _truePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node3 on.png") as Texture2D;
+        _truePointStyle.border = new RectOffset(-4, 2, 2, 2);
 
         _falsePointStyle = new GUIStyle();
-        _falsePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-        _falsePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-        _falsePointStyle.border = new RectOffset(4, 4, 12, 12);
+        _falsePointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node6.png") as Texture2D;
+        _falsePointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node6 on.png") as Texture2D;
+        _falsePointStyle.border = new RectOffset(-4, 2, 2, 2);
     }
 
     private void OnGUI()

@@ -14,7 +14,6 @@ public class ActionNode : Node
     public ConnectionPoint inPoint;
 
     private GameObject _goSource;
-    private float _offset = 10f;
 
     Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private UnityAction myDel;
@@ -23,6 +22,11 @@ public class ActionNode : Node
     private int selectedScript;
     private int selectedMethod;
 
+    private bool _isOpen;
+    private Texture2D _openIcon;
+    private Texture2D _closedIcon;
+    private float _offset = 10f;
+
     public ActionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle,
         Action<ConnectionPoint> OnClickInPoint, Action<Node> OnClickRemoveNode)
@@ -30,94 +34,114 @@ public class ActionNode : Node
     {
         name = "New Action";
         inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
+
+        _isOpen = false;
+        _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
+        _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
     }
 
     public override void Draw()
     {
         inPoint.Draw();
 
-        List<string> lista = new List<string>();
-        lista.Add("");
+        List<string> scripsList = new List<string>();
+        List<string> methodsList = new List<string>();
+        scripsList.Add("");
+        methodsList.Add("");
 
-        if (isSelected) // CAMBIAR POR TOGGLE EN EL BOX
+        if (_isOpen)
         {
             Rect extra = new Rect(rect);
             extra.x += _offset;
-            extra.y += _offset + rect.height / 2;
+            extra.y += rect.height - _offset;
             extra.width -= 2 * _offset;
-            extra.height = 120f;
-            GUI.BeginGroup(extra);
+            extra.height = 80f;
+            GUILayout.BeginArea(extra);
             {
                 EditorGUI.DrawRect(new Rect(0, 0, extra.width, extra.height), new Color(0, 0, 0, .5f));
-                EditorGUIUtility.labelWidth = 40;
-                name = EditorGUILayout.TextField(new GUIContent("Name", "Node Name."), name);
 
-                _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
-                if (_goSource != null)
+                EditorGUILayout.BeginVertical();
                 {
-                   List<object> targets = _goSource.GetComponents<Component>().ToList<System.Object>();
+                    GUILayout.Space(5);
+                    EditorGUIUtility.labelWidth = 40;
+                    name = EditorGUILayout.TextField(new GUIContent("Name", "Node Name."), name);
 
+                    _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
 
-                    foreach (var components in (targets))
+                    if (_goSource != null)
                     {
+                        List<object> targets = _goSource.GetComponents<Component>().ToList<object>();
 
-                        if (components.GetType().Name != "Transform")
+                        foreach (var components in targets)
                         {
-                            if (!unityDictionary.ContainsKey(components.GetType().Name))
+                            if (components.GetType().Name != "Transform")
                             {
-                                unityDictionary.Add(components.GetType().Name, components);
+                                if (!unityDictionary.ContainsKey(components.GetType().Name))
+                                {
+                                    unityDictionary.Add(components.GetType().Name, components);
+                                }
+                                scripsList.Add(components.GetType().Name);
                             }
-                            lista.Add(components.GetType().Name);
                         }
                     }
-                    EditorGUILayout.BeginVertical();
+
+                    string[] options = scripsList.ToArray();
+
+                    EditorGUI.BeginDisabledGroup(_goSource == null);
                     {
-                        string[] options = lista.ToArray();
-                        selectedScript = EditorGUILayout.Popup("Scripts", selectedScript, options, EditorStyles.popup, GUILayout.Width(115));
+                        EditorGUIUtility.labelWidth = 50;
+                        selectedScript = EditorGUILayout.Popup("Script", selectedScript, options, EditorStyles.popup);
 
                         if (selectedScript != 0)
                         {
-                            methodInfos = GetMethod(unityDictionary[lista[selectedScript]]);
-                            List<string> auxMethods = new List<string>();
+                            methodInfos = GetMethod(unityDictionary[scripsList[selectedScript]]);
 
-                            auxMethods.Add("");
-                            foreach (var methodsComp in GetMethod(unityDictionary[lista[selectedScript]]))
+                            foreach (var methodsComp in GetMethod(unityDictionary[scripsList[selectedScript]]))
                             {
-                                auxMethods.Add(methodsComp.Name);
-                            }
-                            string[] optionsMethod = auxMethods.ToArray();
-                            selectedMethod = EditorGUILayout.Popup("Methods", selectedMethod, optionsMethod, EditorStyles.popup, GUILayout.Width(115));
-
-                            if(selectedMethod!= 0)
-                            {
-                                
-                                action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[lista[selectedScript]], methodInfos[selectedMethod-1].Name);
-                                
+                                methodsList.Add(methodsComp.Name);
                             }
                         }
 
-                    }
-                    EditorGUILayout.EndVertical();
+                        string[] optionsMethod = methodsList.ToArray();
 
-                    //esto es para test
-                    if (action != null)
-                    {
-                        action.Invoke();
+                        EditorGUI.BeginDisabledGroup(selectedScript == 0);
+                        {
+                            selectedMethod = EditorGUILayout.Popup("Method", selectedMethod, optionsMethod, EditorStyles.popup);
+
+                            if (selectedMethod != 0)
+                            {
+                                action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[scripsList[selectedScript]], methodInfos[selectedMethod - 1].Name);
+                            }
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
+                    EditorGUI.EndDisabledGroup();
                 }
+                EditorGUILayout.EndVertical();
 
+                /*esto es para test
+                if (action != null)
+                {
+                    action.Invoke();
+                }*/
             }
-            GUI.EndGroup();
+            GUILayout.EndArea();
         }
 
-
-
         base.Draw();
+
+        Rect btn = new Rect(rect);
+        btn.x += 8f;
+        btn.y += rect.height - 16f;
+        btn.width -= 16f;
+        btn.height = 8f;
+
+        if (GUI.Button(btn, (_isOpen) ? _openIcon : _closedIcon))
+            _isOpen = !_isOpen;
     }
 
     public List<MethodInfo> GetMethod(object target)
     {
-        return target.GetType().GetMethods().Where(x=>x.DeclaringType.Equals(target.GetType())).ToList();
-
+        return target.GetType().GetMethods().Where(x => x.DeclaringType.Equals(target.GetType())).ToList();
     }
 }

@@ -21,7 +21,7 @@ public class ConnectionPoint
         this.type = type;
         this.style = style;
         this.OnClickConnectionPoint = OnClickConnectionPoint;
-        rect = new Rect(0, 0, 10f, 20f);
+        rect = new Rect(0, 0, 15f, 20f);
     }
 
     public void Draw()
