@@ -16,9 +16,12 @@ public class ActionNode : Node
     private GameObject _goSource;
     private float _offset = 10f;
 
-    Dictionary<string, UnityAction> unityDictionary = new Dictionary<string, UnityAction>();
+    Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private UnityAction myDel;
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
+
+    private int selectedScript;
+    private int selectedMethod;
 
     public ActionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle,
@@ -42,7 +45,7 @@ public class ActionNode : Node
             extra.x += _offset;
             extra.y += _offset + rect.height / 2;
             extra.width -= 2 * _offset;
-            extra.height = 90f;
+            extra.height = 120f;
             GUI.BeginGroup(extra);
             {
                 EditorGUI.DrawRect(new Rect(0, 0, extra.width, extra.height), new Color(0, 0, 0, .5f));
@@ -60,28 +63,47 @@ public class ActionNode : Node
 
                         if (components.GetType().Name != "Transform")
                         {
-                            lista.Add(components.GetType().Name);
-
-                            foreach (var methodsComp in GetMethod(components))
+                            if (!unityDictionary.ContainsKey(components.GetType().Name))
                             {
-                                //Debug.Log(" nombre " + methodsComp.Name);
-                                if (methodsComp.Name == "Comer")
-                                {
-                                    action = (Action)Delegate.CreateDelegate(typeof(Action), components, methodsComp.Name);
-                                }
+                                unityDictionary.Add(components.GetType().Name, components);
+                            }
+                            lista.Add(components.GetType().Name);
+                        }
+                    
+                    EditorGUILayout.BeginVertical();
+                    {
+                        string[] options = lista.ToArray();
+                        selectedScript = EditorGUILayout.Popup("Scripts", selectedScript, options, EditorStyles.popup, GUILayout.Width(115));
 
+                        if (selectedScript != 0)
+                        {
+                            methodInfos = GetMethod(unityDictionary[lista[selectedScript]]);
+                            List<string> auxMethods = new List<string>();
+
+                            auxMethods.Add("");
+                            foreach (var methodsComp in GetMethod(unityDictionary[lista[selectedScript]]))
+                            {
+                                auxMethods.Add(methodsComp.Name);
+                            }
+                            string[] optionsMethod = auxMethods.ToArray();
+                            selectedMethod = EditorGUILayout.Popup("Methods", selectedMethod, optionsMethod, EditorStyles.popup, GUILayout.Width(115));
+
+                            if(selectedMethod!= 0)
+                            {
+                                
+                                action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[lista[selectedScript]], methodInfos[selectedMethod-1].Name);
+                                
                             }
                         }
+
                     }
+                    EditorGUILayout.EndVertical();
 
-
-
-                    int selected = 0;
-                    string[] options = lista.ToArray();
-                    selected = EditorGUILayout.Popup("Scripts", selected, options);
-
-
-                    action.Invoke();
+                    //esto es para test
+                    if (action != null)
+                    {
+                        action.Invoke();
+                    }
                 }
 
             }

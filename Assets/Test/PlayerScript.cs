@@ -7,19 +7,19 @@ public class PlayerScript : MonoBehaviour
 
     public void Comer()
     {
-        Debug.Log("Comer");
+        Debug.Log("Estoy llamando a la funcion Comer");
     }
     public void Cagar()
     {
-        Debug.Log("Cagar");
+        Debug.Log("Estoy llamando a la funcion Cagar");
     }
     public void Caminar()
     {
-        Debug.Log("Caminar");
+        Debug.Log("Estoy llamando a la funcion Caminar");
     }
     public void Fumar()
     {
-        Debug.Log("Fumar");
+        Debug.Log("Estoy llamando a la funcion Fumar");
     }
 
 }
