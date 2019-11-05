@@ -1,14 +1,14 @@
 ﻿using System;
 using UnityEngine;
 using UnityEditor;
-
-public class Node
+[Serializable]
+public class Node:System.Object
 {
     public Rect rect;
     public string name;
     public bool isDragged;
     public bool isSelected;
-
+    public GameObject go;
     public GUIStyle style;
     public GUIStyle defaultNodeStyle;
     public GUIStyle selectedNodeStyle;

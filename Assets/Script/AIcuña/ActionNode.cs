@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 using UnityEngine.Events;
 
+[Serializable]
 public class ActionNode : Node
 {
     public Action action;
@@ -15,7 +16,7 @@ public class ActionNode : Node
 
     private GameObject _goSource;
 
-    Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
+    private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private UnityAction myDel;
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
 

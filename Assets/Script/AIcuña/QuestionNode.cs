@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 using UnityEngine.Events;
 
+[Serializable]
 public class QuestionNode : Node
 {
     public Func<bool> question;

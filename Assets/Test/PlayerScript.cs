@@ -21,5 +21,16 @@ public class PlayerScript : MonoBehaviour
     {
         Debug.Log("Estoy llamando a la funcion Fumar");
     }
-
+    public bool EstaComiendo()
+    {
+        return true;
+    }
+    public bool EstaCaminando()
+    {
+        return true;
+    }
+    public bool EstaFumando()
+    {
+        return true;
+    }
 }

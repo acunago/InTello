@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -351,6 +352,11 @@ public class AIcuña : EditorWindow
 
         _nodes = new List<Node>(_currentMap.nodes);
         _connections = new List<Connection>(_currentMap.connections);
+
+        foreach (var item in _nodes)
+        {
+            Debug.Log("tipo " + item.GetType());
+        }
 
         EditorUtility.DisplayDialog("Success Open", "AIcuña map has been opened correctly.", "Ok. Let me work.");
     }
