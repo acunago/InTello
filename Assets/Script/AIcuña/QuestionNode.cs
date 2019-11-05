@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Reflection;
 using System.Linq;
-using UnityEngine.Events;
 
 [Serializable]
 public class QuestionNode : Node
@@ -18,7 +17,7 @@ public class QuestionNode : Node
 
     private GameObject _goSource;
 
-    Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
+    private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private Func<bool> myDel;
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
 

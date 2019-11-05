@@ -1,8 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using UnityEditor;
-
-public class Connection
+[Serializable]
+public class Connection : System.Object
 {
     public ConnectionPoint inPoint;
     public ConnectionPoint outPoint;

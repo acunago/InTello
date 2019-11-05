@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-
+[Serializable]
 [CreateAssetMenu(fileName = "New AIcuñaMap", menuName = "AIcuña Map", order = 51)]
 public class AIcuñaMap : ScriptableObject
 {

@@ -2,8 +2,8 @@
 using UnityEngine;
 
 public enum ConnectionPointType { In, True, False }
-
-public class ConnectionPoint
+[Serializable]
+public class ConnectionPoint : System.Object
 {
     public ConnectionPointType type;
 
