@@ -1,10 +1,13 @@
 ﻿using System;
 using UnityEngine;
 
+[Serializable] 
 public enum ConnectionPointType { In, True, False }
 [Serializable]
 public class ConnectionPoint : System.Object
 {
+
+    public string id;
     public ConnectionPointType type;
 
     public Rect rect;
@@ -15,13 +18,14 @@ public class ConnectionPoint : System.Object
 
     public Action<ConnectionPoint> OnClickConnectionPoint;
 
-    public ConnectionPoint(Node node, ConnectionPointType type, GUIStyle style, Action<ConnectionPoint> OnClickConnectionPoint)
+    public ConnectionPoint(Node node, ConnectionPointType type, GUIStyle style, Action<ConnectionPoint> OnClickConnectionPoint, string _id = null)
     {
         this.node = node;
         this.type = type;
         this.style = style;
         this.OnClickConnectionPoint = OnClickConnectionPoint;
         rect = new Rect(0, 0, 15f, 20f);
+        id = _id ?? Guid.NewGuid().ToString();
     }
 
     public void Draw()

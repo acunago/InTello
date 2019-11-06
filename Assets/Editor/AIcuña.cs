@@ -331,6 +331,7 @@ public class AIcuña : EditorWindow
 
     private void OnClickOpenMap(object asset)
     {
+
         if (asset.GetType() != typeof(AIcuñaMap))
         {
             EditorUtility.DisplayDialog("Error", "You must select an AIcuña Map.", "Ok. I'm Sorry.");
@@ -351,12 +352,44 @@ public class AIcuña : EditorWindow
         _mapName = _currentMap.name;
 
         _nodes = new List<Node>(_currentMap.nodes);
-        _connections = new List<Connection>(_currentMap.connections);
 
-        foreach (var item in _nodes)
+
+
+        for (int i = 0; i < _nodes.Count; i++)
         {
-            Debug.Log("tipo " + item.GetType());
+
+            if (_nodes[i].GetType() != typeof(ActionNode))
+            {
+
+                if (_nodes[i]._myType == TypeNode.action)
+                {
+
+                   
+                    _nodes[i] = GetCustomNode(_nodes[i]);
+                }
+            }
+
+            if (_nodes[i].GetType() != typeof(QuestionNode))
+            {
+                Debug.Log("tipo " + _nodes[i].NameMethod);
+                if (_nodes[i]._myType == TypeNode.question)
+                {
+                    _nodes[i] = GetQuestionNode(_nodes[i]);
+                }
+            }
         }
+        //_connections = new List<Connection>(_currentMap.connections);
+        _connections = new List<Connection>();
+        for (int i = 0; i < _currentMap.connections.Count; i++)
+        {
+            for (int b = 0; b < _nodes.Count; b++)
+            {
+                //if(_currentMap.connections[i].inPoint.id == _nodes[b].)
+            }
+            _connections.Add(new Connection(_currentMap.connections[i].inPoint, _currentMap.connections[i].outPoint, OnClickRemoveConnection));
+        }
+        //_connections.Add(new Connection(_currentMap.connections._selectedInPoint, _selectedOutPoint, OnClickRemoveConnection));
+
 
         EditorUtility.DisplayDialog("Success Open", "AIcuña map has been opened correctly.", "Ok. Let me work.");
     }
@@ -515,5 +548,41 @@ public class AIcuña : EditorWindow
         _selectedOutPoint = null;
     }
 
+    private ActionNode GetCustomNode(Node _myNopde)
+    {
+        ActionNode aux;
+        aux = new ActionNode(new Vector2(_myNopde.rect.x, _myNopde.rect.y), 200, 50,
+                   _nodeStyle, _selectedNodeStyle, _inPointStyle,
+                   OnClickInPoint, OnClickRemoveNode);
+        Debug.Log("go " + _myNopde.NameGo);
+        aux._goSource = GameObject.Find(_myNopde.NameGo);
+        aux.NameGo = _myNopde.NameGo;
+        aux.NameMethod = _myNopde.NameMethod;
+        aux.NameScript = _myNopde.NameScript;
+        aux.name = _myNopde.name;
+        aux.SelectScript(_myNopde.NameScript);
+        aux.SelectMethod(_myNopde.NameScript, _myNopde.NameMethod);
+
+        return aux;
+    }
+
+    private QuestionNode GetQuestionNode(Node _myNopde)
+    {
+        QuestionNode aux;
+        aux = new QuestionNode(new Vector2(_myNopde.rect.x, _myNopde.rect.y), 200, 60,
+            _nodeStyle, _selectedNodeStyle, _inPointStyle, _truePointStyle, _falsePointStyle,
+            OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
+        Debug.Log("go " + _myNopde.NameGo);
+        aux._goSource = GameObject.Find(_myNopde.NameGo);
+        aux.NameGo = _myNopde.NameGo;
+        aux.NameMethod = _myNopde.NameMethod;
+        aux.NameScript = _myNopde.NameScript;
+        aux.name = _myNopde.name;
+        aux.SelectScript(_myNopde.NameScript);
+        aux.SelectMethod(_myNopde.NameScript, _myNopde.NameMethod);
+
+        return aux;
+
+    }
     #endregion
 }

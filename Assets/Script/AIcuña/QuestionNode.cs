@@ -15,7 +15,7 @@ public class QuestionNode : Node
     public ConnectionPoint truePoint;
     public ConnectionPoint falsePoint;
 
-    private GameObject _goSource;
+    public GameObject _goSource;
 
     private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private Func<bool> myDel;
@@ -32,7 +32,7 @@ public class QuestionNode : Node
     public QuestionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
         Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode)
-        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, TypeNode.question)
     {
         name = "New Question";
         inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
@@ -43,7 +43,21 @@ public class QuestionNode : Node
         _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
         _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
     }
+    public QuestionNode(Vector2 position, float width, float height,
+    GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
+    Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode,
+    string _idInput, string _idTrue,string _Idfalse)
+    : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, TypeNode.question)
+    {
+        name = "New Question";
+        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint,_idInput);
+        truePoint = new ConnectionPoint(this, ConnectionPointType.True, truePointStyle, OnClickOutPoint, _idTrue);
+        falsePoint = new ConnectionPoint(this, ConnectionPointType.False, falsePointStyle, OnClickOutPoint, _Idfalse);
 
+        _isOpen = false;
+        _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
+        _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
+    }
     public override void Draw()
     {
         inPoint.Draw();
@@ -76,6 +90,7 @@ public class QuestionNode : Node
 
                     if (_goSource != null)
                     {
+                        NameGo = _goSource.name;
                         List<object> targets = _goSource.GetComponents<Component>().ToList<object>();
 
                         foreach (var components in targets)
@@ -87,6 +102,7 @@ public class QuestionNode : Node
                                     unityDictionary.Add(components.GetType().Name, components);
                                 }
                                 scripsList.Add(components.GetType().Name);
+
                             }
                         }
                     }
@@ -100,6 +116,7 @@ public class QuestionNode : Node
 
                         if (selectedScript != 0)
                         {
+                            NameScript = scripsList[selectedScript];
                             methodInfos = GetMethod(unityDictionary[scripsList[selectedScript]]);
 
                             foreach (var methodsComp in GetMethod(unityDictionary[scripsList[selectedScript]]))
@@ -117,6 +134,7 @@ public class QuestionNode : Node
                             if (selectedMethod != 0)
                             {
                                 question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[selectedScript]], methodInfos[selectedMethod - 1].Name);
+                                NameMethod = methodInfos[selectedMethod - 1].Name;
                             }
                         }
                         EditorGUI.EndDisabledGroup();
@@ -149,5 +167,56 @@ public class QuestionNode : Node
     public List<MethodInfo> GetMethod(object target)
     {
         return target.GetType().GetMethods().Where(x => x.DeclaringType.Equals(target.GetType())).ToList();
+    }
+    private void FullDictionary(List<object> targets)
+    {
+        if (targets == null) return;
+        foreach (var components in targets)
+        {
+            if (components.GetType().Name != "Transform")
+            {
+                if (!unityDictionary.ContainsKey(components.GetType().Name))
+                {
+                    unityDictionary.Add(components.GetType().Name, components);
+                }
+            }
+        }
+
+    }
+    public void SelectScript(string name)
+    {
+        int index = 0;
+        selectedScript = 0;
+        FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
+        if (unityDictionary != null)
+        {
+
+            foreach (var entry in unityDictionary)
+            {
+                Debug.Log("name " + name);
+                index++;
+                if (entry.Key == name)
+                {
+                    Debug.Log("entramos ");
+                    var word = entry.Key;
+                    selectedScript = index;
+                }
+            }
+        }
+    }
+    public void SelectMethod(string scriptName, string name)
+    {
+        int index = 0;
+        selectedMethod = 0;
+
+        foreach (var methodsComp in GetMethod(unityDictionary[scriptName]))
+        {
+            index++;
+            if (methodsComp.Name == name)
+            {
+                selectedMethod = index + 1;
+            }
+
+        }
     }
 }

@@ -14,10 +14,9 @@ public class ActionNode : Node
 
     public ConnectionPoint inPoint;
 
-    private GameObject _goSource;
+    public GameObject _goSource;
 
     private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
-    private UnityAction myDel;
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
 
     private int selectedScript;
@@ -31,10 +30,23 @@ public class ActionNode : Node
     public ActionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle,
         Action<ConnectionPoint> OnClickInPoint, Action<Node> OnClickRemoveNode)
-        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode,TypeNode.action)
     {
         name = "New Action";
         inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
+
+        _isOpen = false;
+        _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
+        _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
+    }
+
+    public ActionNode(Vector2 position, float width, float height,
+    GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle,
+    Action<ConnectionPoint> OnClickInPoint, Action<Node> OnClickRemoveNode, string _idInput)
+    : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, TypeNode.action)
+    {
+        name = "New Action";
+        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint,_idInput);
 
         _isOpen = false;
         _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
@@ -45,7 +57,7 @@ public class ActionNode : Node
     {
         inPoint.Draw();
 
-        List<string> scripsList = new List<string>();
+        List<string> scripsList  = new List<string>();
         List<string> methodsList = new List<string>();
         scripsList.Add("");
         methodsList.Add("");
@@ -71,6 +83,7 @@ public class ActionNode : Node
 
                     if (_goSource != null)
                     {
+                        NameGo = _goSource.name;
                         List<object> targets = _goSource.GetComponents<Component>().ToList<object>();
 
                         foreach (var components in targets)
@@ -82,6 +95,7 @@ public class ActionNode : Node
                                     unityDictionary.Add(components.GetType().Name, components);
                                 }
                                 scripsList.Add(components.GetType().Name);
+                                
                             }
                         }
                     }
@@ -95,12 +109,15 @@ public class ActionNode : Node
 
                         if (selectedScript != 0)
                         {
+                            NameScript = scripsList[selectedScript];
                             methodInfos = GetMethod(unityDictionary[scripsList[selectedScript]]);
 
                             foreach (var methodsComp in GetMethod(unityDictionary[scripsList[selectedScript]]))
                             {
+
                                 methodsList.Add(methodsComp.Name);
                             }
+
                         }
 
                         string[] optionsMethod = methodsList.ToArray();
@@ -112,6 +129,7 @@ public class ActionNode : Node
                             if (selectedMethod != 0)
                             {
                                 action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[scripsList[selectedScript]], methodInfos[selectedMethod - 1].Name);
+                                NameMethod = methodInfos[selectedMethod - 1].Name;
                             }
                         }
                         EditorGUI.EndDisabledGroup();
@@ -144,5 +162,57 @@ public class ActionNode : Node
     public List<MethodInfo> GetMethod(object target)
     {
         return target.GetType().GetMethods().Where(x => x.DeclaringType.Equals(target.GetType())).ToList();
+    }
+
+    private void FullDictionary(List<object> targets)
+    {
+        foreach (var components in targets)
+        {
+            if (components.GetType().Name != "Transform")
+            {
+                if (!unityDictionary.ContainsKey(components.GetType().Name))
+                {
+                    unityDictionary.Add(components.GetType().Name, components);
+                }
+            }
+        }
+
+    }
+
+    public void SelectScript(string name)
+    {
+        int index = 0;
+        selectedScript = 0;
+        FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
+        if (unityDictionary != null)
+        {
+            
+            foreach (var entry in unityDictionary)
+            {
+                Debug.Log("name " + name);
+                index++;
+                if (entry.Key == name)
+                {
+                    Debug.Log("entramos ");
+                    var word = entry.Key;
+                    selectedScript = index;
+                } 
+            }
+        }                       
+    }
+    public void SelectMethod(string scriptName,string name)
+    {
+        int index = 0;
+        selectedMethod = 0;
+
+        foreach (var methodsComp in GetMethod(unityDictionary[scriptName]))
+        {
+            index++;
+            if(methodsComp.Name == name)
+            {
+                selectedMethod = index + 1;
+            }
+
+        }
     }
 }

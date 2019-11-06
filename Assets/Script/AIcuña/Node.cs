@@ -1,6 +1,13 @@
 ﻿using System;
 using UnityEngine;
 using UnityEditor;
+
+[Serializable]
+public enum TypeNode
+{
+    question,
+    action
+}
 [Serializable]
 public class Node:System.Object
 {
@@ -8,21 +15,29 @@ public class Node:System.Object
     public string name;
     public bool isDragged;
     public bool isSelected;
-    public GameObject go;
+
+    public string NameGo;
+    public string NameScript;
+    public string NameMethod;
+
+
     public GUIStyle style;
     public GUIStyle defaultNodeStyle;
     public GUIStyle selectedNodeStyle;
 
+    public TypeNode _myType;
+
     public Action<Node> OnRemoveNode;
 
-    public Node(Vector2 position, float width, float height, 
-        GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode)
+    public Node(Vector2 position, float width, float height,
+        GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode, TypeNode myType)
     {
         rect = new Rect(position.x, position.y, width, height);
         style = nodeStyle;
         defaultNodeStyle = nodeStyle;
         selectedNodeStyle = selectedStyle;
         OnRemoveNode = OnClickRemoveNode;
+        _myType = myType;
     }
 
     public void Drag(Vector2 delta)
