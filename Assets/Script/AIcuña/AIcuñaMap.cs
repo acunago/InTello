@@ -1,18 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEditor;
-using UnityEditor.SceneManagement;
-[Serializable]
+
 [CreateAssetMenu(fileName = "New AIcuñaMap", menuName = "AIcuña Map", order = 51)]
 public class AIcuñaMap : ScriptableObject
 {
-    public string name;
-    [SerializeField]
-    public List<Node> nodes;
-    [SerializeField]
+    public List<ActionNode> actions;
+    public List<QuestionNode> questions;
     public List<Connection> connections;
 }

@@ -3,41 +3,31 @@ using UnityEngine;
 using UnityEditor;
 
 [Serializable]
-public enum TypeNode
+public class Node
 {
-    question,
-    action
-}
-[Serializable]
-public class Node:System.Object
-{
+    public string id;
+    public string title;
     public Rect rect;
-    public string name;
-    public bool isDragged;
-    public bool isSelected;
 
-    public string NameGo;
-    public string NameScript;
-    public string NameMethod;
+    [NonSerialized] public bool isDragged;
+    [NonSerialized] public bool isSelected;
 
+    [NonSerialized] public GUIStyle style;
+    [NonSerialized] public GUIStyle defaultNodeStyle;
+    [NonSerialized] public GUIStyle selectedNodeStyle;
 
-    public GUIStyle style;
-    public GUIStyle defaultNodeStyle;
-    public GUIStyle selectedNodeStyle;
-
-    public TypeNode _myType;
-
-    public Action<Node> OnRemoveNode;
+    [NonSerialized] public Action<Node> OnRemoveNode;
 
     public Node(Vector2 position, float width, float height,
-        GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode, TypeNode myType)
+        GUIStyle nodeStyle, GUIStyle selectedStyle, Action<Node> OnClickRemoveNode, string id = null)
     {
         rect = new Rect(position.x, position.y, width, height);
         style = nodeStyle;
         defaultNodeStyle = nodeStyle;
         selectedNodeStyle = selectedStyle;
         OnRemoveNode = OnClickRemoveNode;
-        _myType = myType;
+
+        this.id = id ?? Guid.NewGuid().ToString();
     }
 
     public void Drag(Vector2 delta)
@@ -47,7 +37,7 @@ public class Node:System.Object
 
     public virtual void Draw()
     {
-        GUI.Box(rect, name, style);
+        GUI.Box(rect, title, style);
     }
 
     public bool ProcessEvents(Event e)

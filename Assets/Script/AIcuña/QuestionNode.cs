@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -9,20 +8,21 @@ using System.Linq;
 [Serializable]
 public class QuestionNode : Node
 {
-    public Func<bool> question;
-
     public ConnectionPoint inPoint;
     public ConnectionPoint truePoint;
     public ConnectionPoint falsePoint;
 
-    public GameObject _goSource;
+    public string goName;
+    public string scriptName;
+    public string methodName;
+
+    [NonSerialized] public Func<bool> question;
 
     private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
-    private Func<bool> myDel;
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
-
-    private int selectedScript;
-    private int selectedMethod;
+    public GameObject goSource;
+    private int _scriptIndex;
+    private int _methodIndex;
 
     private bool _isOpen;
     private Texture2D _openIcon;
@@ -32,9 +32,9 @@ public class QuestionNode : Node
     public QuestionNode(Vector2 position, float width, float height,
         GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
         Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode)
-        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, TypeNode.question)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode)
     {
-        name = "New Question";
+        title = "New Question";
         inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint);
         truePoint = new ConnectionPoint(this, ConnectionPointType.True, truePointStyle, OnClickOutPoint);
         falsePoint = new ConnectionPoint(this, ConnectionPointType.False, falsePointStyle, OnClickOutPoint);
@@ -43,21 +43,23 @@ public class QuestionNode : Node
         _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
         _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
     }
+
     public QuestionNode(Vector2 position, float width, float height,
-    GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
-    Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode,
-    string _idInput, string _idTrue,string _Idfalse)
-    : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, TypeNode.question)
+        GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle truePointStyle, GUIStyle falsePointStyle,
+        Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<Node> OnClickRemoveNode,
+        string nodeID, string inPointID, string truePointID, string falsePointID)
+        : base(position, width, height, nodeStyle, selectedStyle, OnClickRemoveNode, nodeID)
     {
-        name = "New Question";
-        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint,_idInput);
-        truePoint = new ConnectionPoint(this, ConnectionPointType.True, truePointStyle, OnClickOutPoint, _idTrue);
-        falsePoint = new ConnectionPoint(this, ConnectionPointType.False, falsePointStyle, OnClickOutPoint, _Idfalse);
+        title = "New Question";
+        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, OnClickInPoint, inPointID);
+        truePoint = new ConnectionPoint(this, ConnectionPointType.True, truePointStyle, OnClickOutPoint, truePointID);
+        falsePoint = new ConnectionPoint(this, ConnectionPointType.False, falsePointStyle, OnClickOutPoint, falsePointID);
 
         _isOpen = false;
         _openIcon = EditorGUIUtility.Load("icons/d_icon dropdown.png") as Texture2D;
         _closedIcon = EditorGUIUtility.Load("icons/icon dropdown.png") as Texture2D;
     }
+
     public override void Draw()
     {
         inPoint.Draw();
@@ -84,14 +86,14 @@ public class QuestionNode : Node
                 {
                     GUILayout.Space(5);
                     EditorGUIUtility.labelWidth = 40;
-                    name = EditorGUILayout.TextField(new GUIContent("Name", "Node Name."), name);
+                    title = EditorGUILayout.TextField(new GUIContent("Title", "Node title."), title);
 
-                    _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
+                    goSource = (GameObject)EditorGUILayout.ObjectField(goSource, typeof(GameObject), true);
 
-                    if (_goSource != null)
+                    if (goSource != null)
                     {
-                        NameGo = _goSource.name;
-                        List<object> targets = _goSource.GetComponents<Component>().ToList<object>();
+                        goName = goSource.name;
+                        List<object> targets = goSource.GetComponents<Component>().ToList<object>();
 
                         foreach (var components in targets)
                         {
@@ -102,24 +104,23 @@ public class QuestionNode : Node
                                     unityDictionary.Add(components.GetType().Name, components);
                                 }
                                 scripsList.Add(components.GetType().Name);
-
                             }
                         }
                     }
 
                     string[] options = scripsList.ToArray();
 
-                    EditorGUI.BeginDisabledGroup(_goSource == null);
+                    EditorGUI.BeginDisabledGroup(goSource == null);
                     {
                         EditorGUIUtility.labelWidth = 50;
-                        selectedScript = EditorGUILayout.Popup("Script", selectedScript, options, EditorStyles.popup);
+                        _scriptIndex = EditorGUILayout.Popup("Script", _scriptIndex, options, EditorStyles.popup);
 
-                        if (selectedScript != 0)
+                        if (_scriptIndex != 0)
                         {
-                            NameScript = scripsList[selectedScript];
-                            methodInfos = GetMethod(unityDictionary[scripsList[selectedScript]]);
+                            scriptName = scripsList[_scriptIndex];
+                            methodInfos = GetMethod(unityDictionary[scripsList[_scriptIndex]]);
 
-                            foreach (var methodsComp in GetMethod(unityDictionary[scripsList[selectedScript]]))
+                            foreach (var methodsComp in GetMethod(unityDictionary[scripsList[_scriptIndex]]))
                             {
                                 methodsList.Add(methodsComp.Name);
                             }
@@ -127,14 +128,14 @@ public class QuestionNode : Node
 
                         string[] optionsMethod = methodsList.ToArray();
 
-                        EditorGUI.BeginDisabledGroup(selectedScript == 0);
+                        EditorGUI.BeginDisabledGroup(_scriptIndex == 0);
                         {
-                            selectedMethod = EditorGUILayout.Popup("Method", selectedMethod, optionsMethod, EditorStyles.popup);
+                            _methodIndex = EditorGUILayout.Popup("Method", _methodIndex, optionsMethod, EditorStyles.popup);
 
-                            if (selectedMethod != 0)
+                            if (_methodIndex != 0)
                             {
-                                question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[selectedScript]], methodInfos[selectedMethod - 1].Name);
-                                NameMethod = methodInfos[selectedMethod - 1].Name;
+                                question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[_scriptIndex]], methodInfos[_methodIndex - 1].Name);
+                                methodName = methodInfos[_methodIndex - 1].Name;
                             }
                         }
                         EditorGUI.EndDisabledGroup();
@@ -142,12 +143,6 @@ public class QuestionNode : Node
                     EditorGUI.EndDisabledGroup();
                 }
                 EditorGUILayout.EndVertical();
-
-                /*esto es para test
-                if (question != null)
-                {
-                    question.Invoke();
-                }*/
             }
             GUILayout.EndArea();
         }
@@ -168,6 +163,7 @@ public class QuestionNode : Node
     {
         return target.GetType().GetMethods().Where(x => x.DeclaringType.Equals(target.GetType())).ToList();
     }
+
     private void FullDictionary(List<object> targets)
     {
         if (targets == null) return;
@@ -181,42 +177,40 @@ public class QuestionNode : Node
                 }
             }
         }
-
     }
+
     public void SelectScript(string name)
     {
         int index = 0;
-        selectedScript = 0;
-        FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
+        _scriptIndex = 0;
+        FullDictionary(goSource.GetComponents<Component>().ToList<object>());
+
         if (unityDictionary != null)
         {
-
             foreach (var entry in unityDictionary)
             {
-                Debug.Log("name " + name);
                 index++;
                 if (entry.Key == name)
                 {
-                    Debug.Log("entramos ");
-                    var word = entry.Key;
-                    selectedScript = index;
+                    var word = entry.Key; // WHY?
+                    _scriptIndex = index;
                 }
             }
         }
     }
+
     public void SelectMethod(string scriptName, string name)
     {
         int index = 0;
-        selectedMethod = 0;
+        _methodIndex = 0;
 
         foreach (var methodsComp in GetMethod(unityDictionary[scriptName]))
         {
             index++;
             if (methodsComp.Name == name)
             {
-                selectedMethod = index + 1;
+                _methodIndex = index + 1;
             }
-
         }
     }
 }

@@ -22,84 +22,105 @@ public class DecisionTree : MonoBehaviour
 
     private void GenerateMyAI()
     {
-        List<int> nodes = new List<int>();
-        List<int> done = new List<int>();
-        List<int> unready = new List<int>();
+        List<Node> allNodes = new List<Node>();
+        List<int> nodesIndex = new List<int>();
+        List<int> doneIndex = new List<int>();
+        List<int> unreadyIndex = new List<int>();
 
-        for (int i = 0; i < map.nodes.Count; i++)
+        foreach (var item in map.actions)
         {
-            nodes.Add(i);
+            allNodes.Add(item);
+        }
+        foreach(var item in map.questions)
+        {
+            allNodes.Add(item);
         }
 
-        while (nodes.Count > 0)
+        for (int i = 0; i < allNodes.Count; i++)
         {
-            for (int i = 0; i < nodes.Count; i++)
+            nodesIndex.Add(i);
+        }
+
+        while (nodesIndex.Count > 0)
+        {
+            for (int i = 0; i < nodesIndex.Count; i++)
             {
-                if (IsReadyToCreate(nodes[i], done))
+                if (IsReadyToCreate(nodesIndex[i], doneIndex, allNodes))
                 {
-                    CreateDecision(nodes[i], done);
-                    done.Add(i);
+                    CreateDecision(nodesIndex[i], doneIndex, allNodes);
+                    doneIndex.Add(i);
                 }
                 else
                 {
-                    unready.Add(nodes[i]);
+                    unreadyIndex.Add(nodesIndex[i]);
                 }
 
-                nodes.RemoveAt(i);
+                nodesIndex.RemoveAt(i);
             }
 
-            nodes = new List<int>(unready);
-            unready.Clear();
+            nodesIndex = new List<int>(unreadyIndex);
+            unreadyIndex.Clear();
         }
 
-        SetRoot(done);
+        SetRoot(doneIndex, allNodes);
     }
 
-    private bool IsReadyToCreate(int id, List<int> ready)
+    private bool IsReadyToCreate(int id, List<int> ready, List<Node> data)
     {
         for (int i = 0; i < map.connections.Count; i++)
         {
-            if (map.connections[i].outPoint.node == map.nodes[id])
+            if (map.connections[i].outPoint.nodeID == data[id].id)
             {
-                if (!ready.Contains(map.nodes.IndexOf(map.connections[i].inPoint.node)))
+                for (int j = 0; j < ready.Count; j++)
                 {
-                    return false;
+                    if (map.connections[i].inPoint.nodeID == data[ready[j]].id)
+                        return true;
                 }
+
+                return false;
             }
         }
 
         return true;
     }
 
-    private void CreateDecision(int id, List<int> ready)
+    private void CreateDecision(int id, List<int> ready, List<Node> data)
     {
         if (_decisions == null)
         {
             _decisions = new List<IDecision>();
         }
 
-        if (map.nodes[id].GetType() == typeof(ActionNode))
+        if (data[id].GetType() == typeof(ActionNode))
         {
-            ActionNode a = (ActionNode)map.nodes[id];
+            ActionNode a = (ActionNode)data[id];
 
             _decisions.Add(new ActionDT(a.action));
         }
 
-        if (map.nodes[id].GetType() == typeof(QuestionNode))
+        if (data[id].GetType() == typeof(QuestionNode))
         {
-            QuestionNode q = (QuestionNode)map.nodes[id];
+            QuestionNode q = (QuestionNode)data[id];
             IDecision t = null;
             IDecision f = null;
 
             for (int i = 0; i < map.connections.Count; i++)
             {
-                if (map.connections[i].outPoint == q.truePoint)
+                if (map.connections[i].outPoint.id == q.truePoint.id)
                 {
-                    t = _decisions[ready.IndexOf(map.nodes.IndexOf(map.connections[i].inPoint.node))];
+                    for (int j = 0; j < ready.Count; j++)
+                    {
+                        if (map.connections[i].inPoint.nodeID == data[ready[j]].id)
+                            t = _decisions[j];
+                    }
                 }
-                if (map.connections[i].outPoint == q.falsePoint)
+                if (map.connections[i].outPoint.id == q.falsePoint.id)
                 {
-                    f = _decisions[ready.IndexOf(map.nodes.IndexOf(map.connections[i].inPoint.node))];
+                    for (int j = 0; j < ready.Count; j++)
+                    {
+                        if (map.connections[i].inPoint.nodeID == data[ready[j]].id)
+                            f = _decisions[j];
+                    }
                 }
             }
 
@@ -107,15 +128,15 @@ public class DecisionTree : MonoBehaviour
         }
     }
 
-    private void SetRoot(List<int> ready)
+    private void SetRoot(List<int> ready, List<Node> data)
     {
-        for (int i = 0; i < map.nodes.Count; i++)
+        for (int i = 0; i < data.Count; i++)
         {
             bool isRoot = true;
 
             for (int j = 0; j < map.connections.Count; j++)
             {
-                if (map.connections[j].inPoint.node == map.nodes[i])
+                if (map.connections[j].inPoint.nodeID == data[i].id)
                 {
                     isRoot = false;
                     break;

@@ -1,6 +1,4 @@
 ﻿using System.IO;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -319,6 +317,8 @@ public class AIcuña : EditorWindow
 
         AssetDatabase.CreateAsset(asset, assetPathAndName);
 
+        _mapName = AssetDatabase.GetImplicitAssetBundleName(path);
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EditorUtility.FocusProjectWindow();
@@ -340,56 +340,60 @@ public class AIcuña : EditorWindow
 
         _currentMap = (AIcuñaMap)asset;
 
-        if (_currentMap.nodes == null)
-        {
-            _currentMap.nodes = new List<Node>();
-        }
-        if (_currentMap.connections == null)
-        {
-            _currentMap.connections = new List<Connection>();
-        }
+        if (_currentMap.actions == null) _currentMap.actions = new List<ActionNode>();
+        if (_currentMap.questions == null) _currentMap.questions = new List<QuestionNode>();
+        if (_currentMap.connections == null) _currentMap.connections = new List<Connection>();
 
         _mapName = _currentMap.name;
 
-        _nodes = new List<Node>(_currentMap.nodes);
-
-
-
-        for (int i = 0; i < _nodes.Count; i++)
-        {
-
-            if (_nodes[i].GetType() != typeof(ActionNode))
-            {
-
-                if (_nodes[i]._myType == TypeNode.action)
-                {
-
-                   
-                    _nodes[i] = GetCustomNode(_nodes[i]);
-                }
-            }
-
-            if (_nodes[i].GetType() != typeof(QuestionNode))
-            {
-                Debug.Log("tipo " + _nodes[i].NameMethod);
-                if (_nodes[i]._myType == TypeNode.question)
-                {
-                    _nodes[i] = GetQuestionNode(_nodes[i]);
-                }
-            }
-        }
-        //_connections = new List<Connection>(_currentMap.connections);
+        _nodes = new List<Node>();
         _connections = new List<Connection>();
-        for (int i = 0; i < _currentMap.connections.Count; i++)
-        {
-            for (int b = 0; b < _nodes.Count; b++)
-            {
-                //if(_currentMap.connections[i].inPoint.id == _nodes[b].)
-            }
-            _connections.Add(new Connection(_currentMap.connections[i].inPoint, _currentMap.connections[i].outPoint, OnClickRemoveConnection));
-        }
-        //_connections.Add(new Connection(_currentMap.connections._selectedInPoint, _selectedOutPoint, OnClickRemoveConnection));
 
+        foreach (var item in _currentMap.actions)
+        {
+            _nodes.Add(new ActionNode(item.rect.position, item.rect.width, item.rect.height,
+                _nodeStyle, _selectedNodeStyle, _inPointStyle, OnClickInPoint, OnClickRemoveNode,
+                item.id, item.inPoint.id));
+        }
+        foreach (var item in _currentMap.questions)
+        {
+            _nodes.Add(new QuestionNode(item.rect.position, item.rect.width, item.rect.height,
+            _nodeStyle, _selectedNodeStyle, _inPointStyle, _truePointStyle, _falsePointStyle,
+            OnClickInPoint, OnClickOutPoint, OnClickRemoveNode,
+            item.id, item.inPoint.id, item.truePoint.id, item.falsePoint.id));
+        }
+
+        foreach (var item in _currentMap.connections)
+        {
+            ConnectionPoint inPoint = null;
+            ConnectionPoint outPoint = null;
+
+            foreach (var node in _nodes)
+            {
+                if (node.GetType() == typeof(ActionNode))
+                {
+                    ActionNode n = node as ActionNode;
+                    if (item.inPoint.id == n.inPoint.id)
+                        inPoint = n.inPoint;
+                }
+                else if (node.GetType() == typeof(QuestionNode))
+                {
+                    QuestionNode n = node as QuestionNode;
+                    if (item.inPoint.id == n.inPoint.id)
+                        inPoint = n.inPoint;
+                    if (item.outPoint.id == n.truePoint.id)
+                        outPoint = n.truePoint;
+                    else if (item.outPoint.id == n.falsePoint.id)
+                        outPoint = n.falsePoint;
+                }
+                if (inPoint != null && outPoint != null) break;
+            }
+
+            if (inPoint != null && outPoint != null)
+                _connections.Add(new Connection(inPoint, outPoint, OnClickRemoveConnection));
+            else
+                EditorUtility.DisplayDialog("Error", "Something go wrong.", "Ok. This is a stupid msg.");
+        }
 
         EditorUtility.DisplayDialog("Success Open", "AIcuña map has been opened correctly.", "Ok. Let me work.");
     }
@@ -411,9 +415,21 @@ public class AIcuña : EditorWindow
             _connections = new List<Connection>();
         }
 
-        map.name = _mapName;
-        map.nodes = new List<Node>(_nodes);
+        string assetPath = AssetDatabase.GetAssetPath(map.GetInstanceID());
+        AssetDatabase.RenameAsset(assetPath, _mapName);
+        AssetDatabase.SaveAssets();
+
+        map.actions = new List<ActionNode>();
+        map.questions = new List<QuestionNode>();
         map.connections = new List<Connection>(_connections);
+
+        foreach (var item in _nodes)
+        {
+            if (item.GetType() == typeof(ActionNode))
+                map.actions.Add(item as ActionNode);
+            else if (item.GetType() == typeof(QuestionNode))
+                map.questions.Add(item as QuestionNode);
+        }
 
         EditorUtility.DisplayDialog("Success Save", "AIcuña map has been saved correctly.", "Ok. You're awesome.");
     }
@@ -548,41 +564,5 @@ public class AIcuña : EditorWindow
         _selectedOutPoint = null;
     }
 
-    private ActionNode GetCustomNode(Node _myNopde)
-    {
-        ActionNode aux;
-        aux = new ActionNode(new Vector2(_myNopde.rect.x, _myNopde.rect.y), 200, 50,
-                   _nodeStyle, _selectedNodeStyle, _inPointStyle,
-                   OnClickInPoint, OnClickRemoveNode);
-        Debug.Log("go " + _myNopde.NameGo);
-        aux._goSource = GameObject.Find(_myNopde.NameGo);
-        aux.NameGo = _myNopde.NameGo;
-        aux.NameMethod = _myNopde.NameMethod;
-        aux.NameScript = _myNopde.NameScript;
-        aux.name = _myNopde.name;
-        aux.SelectScript(_myNopde.NameScript);
-        aux.SelectMethod(_myNopde.NameScript, _myNopde.NameMethod);
-
-        return aux;
-    }
-
-    private QuestionNode GetQuestionNode(Node _myNopde)
-    {
-        QuestionNode aux;
-        aux = new QuestionNode(new Vector2(_myNopde.rect.x, _myNopde.rect.y), 200, 60,
-            _nodeStyle, _selectedNodeStyle, _inPointStyle, _truePointStyle, _falsePointStyle,
-            OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
-        Debug.Log("go " + _myNopde.NameGo);
-        aux._goSource = GameObject.Find(_myNopde.NameGo);
-        aux.NameGo = _myNopde.NameGo;
-        aux.NameMethod = _myNopde.NameMethod;
-        aux.NameScript = _myNopde.NameScript;
-        aux.name = _myNopde.name;
-        aux.SelectScript(_myNopde.NameScript);
-        aux.SelectMethod(_myNopde.NameScript, _myNopde.NameMethod);
-
-        return aux;
-
-    }
     #endregion
 }
