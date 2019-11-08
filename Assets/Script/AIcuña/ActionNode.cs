@@ -171,10 +171,13 @@ public class ActionNode : Node
         }
     }
 
-    public void SelectScript(string name)
+    public void SelectScript()
     {
         int index = 0;
         _scriptIndex = 0;
+        if (goName == "") return;
+
+        _goSource = GameObject.Find(goName);
         FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
 
         if (unityDictionary != null)
@@ -182,26 +185,26 @@ public class ActionNode : Node
             foreach (var entry in unityDictionary)
             {
                 index++;
-                if (entry.Key == name)
+                if (entry.Key == scriptName)
                 {
-                    var word = entry.Key; // WHY?
                     _scriptIndex = index;
                 }
             }
         }
     }
 
-    public void SelectMethod(string scriptName, string name)
+    public void SelectMethod()
     {
         int index = 0;
         _methodIndex = 0;
-
+        if ((methodName == "")) return;
+        if ((scriptName == "")) return;
         foreach (var methodsComp in GetMethod(unityDictionary[scriptName]))
         {
             index++;
-            if (methodsComp.Name == name)
+            if (methodsComp.Name == methodName)
             {
-                _methodIndex = index + 1;
+                _methodIndex = index;
             }
         }
     }

@@ -315,9 +315,10 @@ public class AIcuña : EditorWindow
 
         string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + typeof(AIcuñaMap).ToString() + ".asset");
 
+        Debug.Log(assetPathAndName);
         AssetDatabase.CreateAsset(asset, assetPathAndName);
-
-        _mapName = AssetDatabase.GetImplicitAssetBundleName(path);
+        Debug.Log(path);
+        _mapName = AssetDatabase.GetImplicitAssetBundleName(assetPathAndName);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -331,7 +332,8 @@ public class AIcuña : EditorWindow
 
     private void OnClickOpenMap(object asset)
     {
-
+        ActionNode auxAction;
+        QuestionNode auxQuestion;
         if (asset.GetType() != typeof(AIcuñaMap))
         {
             EditorUtility.DisplayDialog("Error", "You must select an AIcuña Map.", "Ok. I'm Sorry.");
@@ -351,16 +353,31 @@ public class AIcuña : EditorWindow
 
         foreach (var item in _currentMap.actions)
         {
-            _nodes.Add(new ActionNode(item.rect.position, item.rect.width, item.rect.height,
+            auxAction = new ActionNode(item.rect.position, item.rect.width, item.rect.height,
                 _nodeStyle, _selectedNodeStyle, _inPointStyle, OnClickInPoint, OnClickRemoveNode,
-                item.id, item.inPoint.id));
+                item.id, item.inPoint.id);
+            auxAction.goName = item.goName;
+            auxAction.scriptName = item.scriptName;
+            auxAction.methodName = item.methodName;
+            auxAction.SelectScript();
+            auxAction.SelectMethod();
+            _nodes.Add(auxAction);
+
+
         }
         foreach (var item in _currentMap.questions)
         {
-            _nodes.Add(new QuestionNode(item.rect.position, item.rect.width, item.rect.height,
+            auxQuestion = new QuestionNode(item.rect.position, item.rect.width, item.rect.height,
             _nodeStyle, _selectedNodeStyle, _inPointStyle, _truePointStyle, _falsePointStyle,
             OnClickInPoint, OnClickOutPoint, OnClickRemoveNode,
-            item.id, item.inPoint.id, item.truePoint.id, item.falsePoint.id));
+            item.id, item.inPoint.id, item.truePoint.id, item.falsePoint.id);
+
+            auxQuestion.goName = item.goName;
+            auxQuestion.scriptName = item.scriptName;
+            auxQuestion.methodName = item.methodName;
+            auxQuestion.SelectScript();
+            auxQuestion.SelectMethod();
+            _nodes.Add(auxQuestion);
         }
 
         foreach (var item in _currentMap.connections)
