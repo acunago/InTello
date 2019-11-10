@@ -315,9 +315,9 @@ public class AIcuña : EditorWindow
 
         string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + typeof(AIcuñaMap).ToString() + ".asset");
 
-        Debug.Log(assetPathAndName);
+
         AssetDatabase.CreateAsset(asset, assetPathAndName);
-        Debug.Log(path);
+
         _mapName = AssetDatabase.GetImplicitAssetBundleName(assetPathAndName);
 
         AssetDatabase.SaveAssets();

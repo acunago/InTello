@@ -44,7 +44,7 @@ public class DecisionTree : MonoBehaviour
         {
             nodesIndex.Add(i);
         }
-
+        Debug.Log("vamos hasta aca " + nodesIndex.Count);
         while (nodesIndex.Count > 0)
         {
             for (int i = 0; i < nodesIndex.Count; i++)
@@ -65,7 +65,7 @@ public class DecisionTree : MonoBehaviour
             nodesIndex = new List<int>(unreadyIndex);
             unreadyIndex.Clear();
         }
-
+        Debug.Log("vamos hasta aca 2");
         SetRoot(doneIndex, allNodes);
     }
 
@@ -134,8 +134,10 @@ public class DecisionTree : MonoBehaviour
 
     private void SetRoot(List<int> ready, List<Node> data)
     {
+
         for (int i = 0; i < data.Count; i++)
         {
+
             bool isRoot = true;
 
             for (int j = 0; j < map.connections.Count; j++)
@@ -147,8 +149,10 @@ public class DecisionTree : MonoBehaviour
                 }
             }
 
+
             if(isRoot)
             {
+                Debug.Log("i " + i + " _decisions " + _decisions.Count + " ready.IndexOf(i) " + ready.IndexOf(i));
                 _rootAI = _decisions[ready.IndexOf(i)];
                 break;
             }
