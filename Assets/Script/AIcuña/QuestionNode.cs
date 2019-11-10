@@ -134,8 +134,10 @@ public class QuestionNode : Node
 
                             if (_methodIndex != 0)
                             {
-                                question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[_scriptIndex]], methodInfos[_methodIndex - 1].Name);
+                                //question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[_scriptIndex]], methodInfos[_methodIndex - 1].Name);
                                 methodName = methodInfos[_methodIndex - 1].Name;
+                                question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName); 
+
                             }
                         }
                         EditorGUI.EndDisabledGroup();

@@ -127,8 +127,8 @@ public class ActionNode : Node
 
                             if (_methodIndex != 0)
                             {
-                                action = (Action)Delegate.CreateDelegate(typeof(Action), unityDictionary[scripsList[_scriptIndex]], methodInfos[_methodIndex - 1].Name);
                                 methodName = methodInfos[_methodIndex - 1].Name;
+                                action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName);
                             }
                         }
                         EditorGUI.EndDisabledGroup();

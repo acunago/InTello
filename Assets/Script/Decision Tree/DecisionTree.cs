@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,10 +30,13 @@ public class DecisionTree : MonoBehaviour
 
         foreach (var item in map.actions)
         {
+
+            item.action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
             allNodes.Add(item);
         }
         foreach(var item in map.questions)
         {
+            item.question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
             allNodes.Add(item);
         }
 
