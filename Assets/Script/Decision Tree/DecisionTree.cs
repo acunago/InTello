@@ -30,10 +30,10 @@ public class DecisionTree : MonoBehaviour
 
         foreach (var item in map.actions)
         {
-
             item.action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
             allNodes.Add(item);
         }
+
         foreach(var item in map.questions)
         {
             item.question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
@@ -44,7 +44,7 @@ public class DecisionTree : MonoBehaviour
         {
             nodesIndex.Add(i);
         }
-        Debug.Log("vamos hasta aca " + nodesIndex.Count);
+
         while (nodesIndex.Count > 0)
         {
             for (int i = 0; i < nodesIndex.Count; i++)
@@ -52,7 +52,7 @@ public class DecisionTree : MonoBehaviour
                 if (IsReadyToCreate(nodesIndex[i], doneIndex, allNodes))
                 {
                     CreateDecision(nodesIndex[i], doneIndex, allNodes);
-                    doneIndex.Add(i);
+                    doneIndex.Add(nodesIndex[i]);
                 }
                 else
                 {
@@ -65,7 +65,6 @@ public class DecisionTree : MonoBehaviour
             nodesIndex = new List<int>(unreadyIndex);
             unreadyIndex.Clear();
         }
-        Debug.Log("vamos hasta aca 2");
         SetRoot(doneIndex, allNodes);
     }
 
@@ -148,7 +147,6 @@ public class DecisionTree : MonoBehaviour
                     break;
                 }
             }
-
 
             if(isRoot)
             {

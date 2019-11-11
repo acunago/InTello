@@ -1,0 +1,140 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7075a19fbe6431c4085b0115850af142, type: 3}
+  m_Name: Prueba1
+  m_EditorClassIdentifier: 
+  actions:
+  - id: c3100a75-32df-4b5f-bd6f-66690f55f756
+    title: acc1
+    rect:
+      serializedVersion: 2
+      x: 612
+      y: 148
+      width: 200
+      height: 50
+    inPoint:
+      id: 64b77397-158e-43a1-9925-e34e97e7bdf0
+      type: 0
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 163
+        width: 15
+        height: 20
+      nodeID: c3100a75-32df-4b5f-bd6f-66690f55f756
+    goName: Esta
+    scriptName: PlayerScript
+    methodName: Fumar
+  - id: 48762ec7-c8d2-429f-8e9b-dec5ae072865
+    title: acc2
+    rect:
+      serializedVersion: 2
+      x: 594
+      y: 311
+      width: 200
+      height: 50
+    inPoint:
+      id: 1b822152-01f4-41f3-b12a-a25ecce8867c
+      type: 0
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 326
+        width: 15
+        height: 20
+      nodeID: 48762ec7-c8d2-429f-8e9b-dec5ae072865
+    goName: Esta
+    scriptName: PlayerScript
+    methodName: Cagar
+  questions:
+  - id: d8af1e80-4ff4-45ca-a0c3-20399140dc24
+    title: pregunta1
+    rect:
+      serializedVersion: 2
+      x: 141
+      y: 214
+      width: 200
+      height: 60
+    inPoint:
+      id: b1854233-c4ff-49d2-b3c8-c3e520f6fd86
+      type: 0
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 234
+        width: 15
+        height: 20
+      nodeID: d8af1e80-4ff4-45ca-a0c3-20399140dc24
+    truePoint:
+      id: 3d3bf6cf-115c-43d2-bb78-bd89acb16583
+      type: 1
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 224
+        width: 15
+        height: 20
+      nodeID: d8af1e80-4ff4-45ca-a0c3-20399140dc24
+    falsePoint:
+      id: 38e0ad94-fa9e-49cf-a9da-cbcb9411366a
+      type: 2
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 244
+        width: 15
+        height: 20
+      nodeID: d8af1e80-4ff4-45ca-a0c3-20399140dc24
+    goName: Esta
+    scriptName: PlayerScript
+    methodName: EstaComiendo
+  connections:
+  - inPoint:
+      id: 64b77397-158e-43a1-9925-e34e97e7bdf0
+      type: 0
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 163
+        width: 15
+        height: 20
+      nodeID: c3100a75-32df-4b5f-bd6f-66690f55f756
+    outPoint:
+      id: 3d3bf6cf-115c-43d2-bb78-bd89acb16583
+      type: 1
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 224
+        width: 15
+        height: 20
+      nodeID: d8af1e80-4ff4-45ca-a0c3-20399140dc24
+  - inPoint:
+      id: 1b822152-01f4-41f3-b12a-a25ecce8867c
+      type: 0
+      rect:
+        serializedVersion: 2
+        x: 587
+        y: 326
+        width: 15
+        height: 20
+      nodeID: 48762ec7-c8d2-429f-8e9b-dec5ae072865
+    outPoint:
+      id: 38e0ad94-fa9e-49cf-a9da-cbcb9411366a
+      type: 2
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 244
+        width: 15
+        height: 20
+      nodeID: d8af1e80-4ff4-45ca-a0c3-20399140dc24

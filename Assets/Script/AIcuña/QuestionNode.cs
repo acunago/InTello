@@ -20,7 +20,7 @@ public class QuestionNode : Node
 
     private Dictionary<string, object> unityDictionary = new Dictionary<string, object>();
     private List<MethodInfo> methodInfos = new List<MethodInfo>();
-    public GameObject goSource;
+    private GameObject _goSource;
     private int _scriptIndex;
     private int _methodIndex;
 
@@ -88,12 +88,12 @@ public class QuestionNode : Node
                     EditorGUIUtility.labelWidth = 40;
                     title = EditorGUILayout.TextField(new GUIContent("Title", "Node title."), title);
 
-                    goSource = (GameObject)EditorGUILayout.ObjectField(goSource, typeof(GameObject), true);
+                    _goSource = (GameObject)EditorGUILayout.ObjectField(_goSource, typeof(GameObject), true);
 
-                    if (goSource != null)
+                    if (_goSource != null)
                     {
-                        goName = goSource.name;
-                        List<object> targets = goSource.GetComponents<Component>().ToList<object>();
+                        goName = _goSource.name;
+                        List<object> targets = _goSource.GetComponents<Component>().ToList<object>();
 
                         foreach (var components in targets)
                         {
@@ -110,7 +110,7 @@ public class QuestionNode : Node
 
                     string[] options = scripsList.ToArray();
 
-                    EditorGUI.BeginDisabledGroup(goSource == null);
+                    EditorGUI.BeginDisabledGroup(_goSource == null);
                     {
                         EditorGUIUtility.labelWidth = 50;
                         _scriptIndex = EditorGUILayout.Popup("Script", _scriptIndex, options, EditorStyles.popup);
@@ -134,10 +134,8 @@ public class QuestionNode : Node
 
                             if (_methodIndex != 0)
                             {
-                                //question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), unityDictionary[scripsList[_scriptIndex]], methodInfos[_methodIndex - 1].Name);
                                 methodName = methodInfos[_methodIndex - 1].Name;
                                 question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName); 
-
                             }
                         }
                         EditorGUI.EndDisabledGroup();
@@ -187,8 +185,8 @@ public class QuestionNode : Node
         _scriptIndex = 0;
         if (goName == "") return;
 
-        goSource = GameObject.Find(goName);
-        FullDictionary(goSource.GetComponents<Component>().ToList<object>());
+        _goSource = GameObject.Find(goName);
+        FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
 
         if (unityDictionary != null)
         {

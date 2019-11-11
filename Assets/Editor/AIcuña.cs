@@ -362,9 +362,8 @@ public class AIcuña : EditorWindow
             auxAction.SelectScript();
             auxAction.SelectMethod();
             _nodes.Add(auxAction);
-
-
         }
+
         foreach (var item in _currentMap.questions)
         {
             auxQuestion = new QuestionNode(item.rect.position, item.rect.width, item.rect.height,
