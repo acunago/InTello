@@ -30,12 +30,18 @@ public class DecisionTree : MonoBehaviour
 
         foreach (var item in map.actions)
         {
+            if (item.goName == "") continue;
+            if (item.scriptName == "") continue;
+            if (item.methodName == "") continue;
             item.action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
             allNodes.Add(item);
         }
 
         foreach(var item in map.questions)
         {
+            if (item.goName == "") continue;
+            if (item.scriptName == "") continue;
+            if (item.methodName == "") continue;
             item.question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(item.goName).GetComponent(item.scriptName) as MonoBehaviour, item.methodName);
             allNodes.Add(item);
         }

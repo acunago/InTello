@@ -128,7 +128,17 @@ public class ActionNode : Node
                             if (_methodIndex != 0)
                             {
                                 methodName = methodInfos[_methodIndex - 1].Name;
-                                action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName);
+                                try
+                                {
+                                    action = (Action)Delegate.CreateDelegate(typeof(Action), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName);
+                                }
+                                catch (Exception)
+                                {
+                                    EditorGUILayout.HelpBox(methodName + " is not a Method", MessageType.Error);
+                                    _methodIndex = 0;
+                     
+                                }
+                                
                             }
                         }
                         EditorGUI.EndDisabledGroup();
@@ -175,9 +185,12 @@ public class ActionNode : Node
     {
         int index = 0;
         _scriptIndex = 0;
+        Debug.Log(goName);
         if (goName == "") return;
+        if (scriptName == "") return;
 
         _goSource = GameObject.Find(goName);
+        if (_goSource == null) return;
         FullDictionary(_goSource.GetComponents<Component>().ToList<object>());
 
         if (unityDictionary != null)

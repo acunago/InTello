@@ -23,14 +23,17 @@ public class PlayerScript : MonoBehaviour
     }
     public bool EstaComiendo()
     {
+        Debug.Log("EstaComiendo");
         return true;
     }
     public bool EstaCaminando()
     {
+        Debug.Log("EstaCaminando");
         return true;
     }
     public bool EstaFumando()
     {
+        Debug.Log("EstaFumando");
         return true;
     }
 }

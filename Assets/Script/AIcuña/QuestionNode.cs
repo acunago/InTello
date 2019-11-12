@@ -135,7 +135,16 @@ public class QuestionNode : Node
                             if (_methodIndex != 0)
                             {
                                 methodName = methodInfos[_methodIndex - 1].Name;
-                                question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName); 
+                                try
+                                {
+                                    question = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), GameObject.Find(goName).GetComponent(scriptName) as MonoBehaviour, methodName);
+                                }
+                                catch (Exception)
+                                {
+                                    EditorGUILayout.HelpBox(methodName + " is not a Function", MessageType.Error);
+                                    _methodIndex = 0;
+                                   
+                                }                                
                             }
                         }
                         EditorGUI.EndDisabledGroup();
